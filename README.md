@@ -1,14 +1,56 @@
-# date_picker_timeline_flutter
+# DatePickerTimeline
 
 Flutter Date Picker Library that provides a calendar as a horizontal timeline.
 
-## Getting Started
+<p>
+ <img src="/screenshots/demo.gif?raw=true"/>
+</p>
 
-This project is a starting point for a Dart
-[package](https://flutter.dev/developing-packages/),
-a library module containing code that can be shared easily across
-multiple Flutter or Dart projects.
+## How To Use
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+Import the following package in your dart file
+
+```
+import 'package:date_picker_timeline/date_picker_timeline.dart';
+```
+
+## Usage
+
+Use the `DatePickerTimeline` Widget
+
+```
+    Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          DatePickerTimeline(
+            DateTime.now(),
+            onDateChange: (date) {
+              // New date selected
+              print(date.day.toString());
+            },
+          ),
+        ],
+    ),
+```
+
+##### Constructor:
+
+```
+    DatePickerTimeline(
+        this.currentDate, {
+        Key key,
+        this.dateSize = Dimen.dateTextSize,
+        this.daySize = Dimen.dayTextSize,
+        this.monthSize = Dimen.monthTextSize,
+        this.dateColor = AppColors.defaultDateColor,
+        this.monthColor = AppColors.defaultMonthColor,
+        this.dayColor = AppColors.defaultDayColor,
+        this.selectionColor = AppColors.defaultSelectionColor,
+        this.onDateChange,
+      }) : super(key: key);
+```
+
+Author
+------
+
+* [Vivek Kaushik](http://github.com/iamvivekkaushik/)
