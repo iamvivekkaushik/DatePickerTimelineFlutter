@@ -35,7 +35,9 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          DatePickerTimeline(),
+          DatePickerTimeline(
+            DateTime.now(),
+          ),
         ],
       ),
     );
