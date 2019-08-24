@@ -37,6 +37,10 @@ class _MyHomePageState extends State<MyHomePage> {
         children: <Widget>[
           DatePickerTimeline(
             DateTime.now(),
+            onDateChange: (date) {
+              // New date selected
+              print(date.day.toString());
+            },
           ),
         ],
       ),

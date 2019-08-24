@@ -3,14 +3,15 @@ library date_picker_timeline;
 import 'package:date_picker_timeline/date_widget.dart';
 import 'package:date_picker_timeline/extra/color.dart';
 import 'package:date_picker_timeline/extra/dimen.dart';
+import 'package:date_picker_timeline/gestures/tap.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class DatePickerTimeline extends StatefulWidget {
   double dateSize, daySize, monthSize;
   Color dateColor, monthColor, dayColor;
   Color selectionColor;
   DateTime currentDate;
+  DateChangeListener onDateChange;
 
   // Creates the DatePickerTimeline Widget
   DatePickerTimeline(
@@ -23,6 +24,7 @@ class DatePickerTimeline extends StatefulWidget {
     this.monthColor = AppColors.defaultMonthColor,
     this.dayColor = AppColors.defaultDayColor,
     this.selectionColor = AppColors.defaultSelectionColor,
+    this.onDateChange,
   }) : super(key: key);
 
   @override
@@ -39,7 +41,6 @@ class _DatePickerState extends State<DatePickerTimeline> {
   Widget build(BuildContext context) {
     return Container(
       height: 80,
-      color: Colors.red,
       child: ListView.builder(
         itemCount: 50000,
         scrollDirection: Axis.horizontal,
@@ -60,9 +61,11 @@ class _DatePickerState extends State<DatePickerTimeline> {
                 isSelected ? widget.selectionColor : Colors.transparent,
             onDateSelected: (selectedDate) {
               // A date is selected
-              print(selectedDate.day.toString());
+              if (widget.onDateChange != null) {
+                widget.onDateChange(selectedDate);
+              }
               setState(() {
-                widget.currentDate = date;
+                widget.currentDate = selectedDate;
               });
             },
           );
