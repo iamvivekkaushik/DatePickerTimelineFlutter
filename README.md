@@ -3,7 +3,7 @@
 Flutter Date Picker Library that provides a calendar as a horizontal timeline.
 
 <p>
- <img src="/screenshots/demo.gif?raw=true"/>
+ <img src="https://raw.githubusercontent.com/iamvivekkaushik/DatePickerTimelineFlutter/master/screenshots/demo.gif?raw=true"/>
 </p>
 
 ## How To Use
