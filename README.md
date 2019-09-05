@@ -56,3 +56,8 @@ Author
 ------
 
 * [Vivek Kaushik](http://github.com/iamvivekkaushik/)
+
+
+Contributors
+------------
+* [BradInTheUSA](https://github.com/bradintheusa)
