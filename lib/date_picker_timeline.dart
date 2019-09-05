@@ -34,7 +34,8 @@ class DatePickerTimeline extends StatefulWidget {
 class _DatePickerState extends State<DatePickerTimeline> {
   @override
   void initState() {
-    widget.currentDate = DateTime.now();
+    DateTime _date = DateTime.now();
+    widget.currentDate = new DateTime(_date.year, _date.month, _date.day);;
   }
 
   @override
@@ -46,7 +47,8 @@ class _DatePickerState extends State<DatePickerTimeline> {
         scrollDirection: Axis.horizontal,
         itemBuilder: (context, index) {
           // Return the Date Widget
-          DateTime date = DateTime.now().add(Duration(days: index));
+          DateTime _date = DateTime.now().add(Duration(days: index));
+          DateTime date = new DateTime(_date.year, _date.month, _date.day);
           bool isSelected = compareDate(date, widget.currentDate);
 
           return DateWidget(
@@ -63,10 +65,12 @@ class _DatePickerState extends State<DatePickerTimeline> {
               // A date is selected
               if (widget.onDateChange != null) {
                 widget.onDateChange(selectedDate);
-              }
+              }            
               setState(() {
                 widget.currentDate = selectedDate;
-              });
+              });         
+
+
             },
           );
         },
@@ -75,11 +79,6 @@ class _DatePickerState extends State<DatePickerTimeline> {
   }
 
   bool compareDate(DateTime date1, DateTime date2) {
-    String date1String =
-        date1.day.toString() + date1.month.toString() + date1.year.toString();
-    String date2String =
-        date2.day.toString() + date2.month.toString() + date2.year.toString();
-
-    return date1String == date2String;
+    return date1.day == date2.day  &&  date1.month == date2.month && date1.year == date2.year;
   }
 }
