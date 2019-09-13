@@ -32,11 +32,6 @@ class DatePickerTimeline extends StatefulWidget {
 }
 
 class _DatePickerState extends State<DatePickerTimeline> {
-  @override
-  void initState() {
-    DateTime _date = DateTime.now();
-    widget.currentDate = new DateTime(_date.year, _date.month, _date.day);;
-  }
 
   @override
   Widget build(BuildContext context) {
