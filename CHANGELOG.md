@@ -1,3 +1,8 @@
+## [1.1.0] - 19/09/2019
+
+* Added option to limit the number of date shown in the list
+* Added option to manage width and height of the timeline
+
 ## [1.0.0] - 19/09/2019
 
 * Added ability to manage text style for month, date and day text.

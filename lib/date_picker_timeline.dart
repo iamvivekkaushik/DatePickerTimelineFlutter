@@ -7,19 +7,26 @@ import 'package:date_picker_timeline/gestures/tap.dart';
 import 'package:flutter/material.dart';
 
 class DatePickerTimeline extends StatefulWidget {
+  double width;
+  double height;
+
   TextStyle monthTextStyle, dayTextStyle, dateTextStyle;
   Color selectionColor;
   DateTime currentDate;
   DateChangeListener onDateChange;
+  int daysCount;
 
   // Creates the DatePickerTimeline Widget
   DatePickerTimeline(
     this.currentDate, {
     Key key,
+    this.width,
+    this.height = 80,
     this.monthTextStyle = defaultMonthTextStyle,
     this.dayTextStyle = defaultDayTextStyle,
     this.dateTextStyle = defaultDateTextStyle,
     this.selectionColor = AppColors.defaultSelectionColor,
+    this.daysCount = 50000,
     this.onDateChange,
   }) : super(key: key);
 
@@ -31,9 +38,10 @@ class _DatePickerState extends State<DatePickerTimeline> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 80,
+      width: widget.width,
+      height: widget.height,
       child: ListView.builder(
-        itemCount: 50000,
+        itemCount: widget.daysCount,
         scrollDirection: Axis.horizontal,
         itemBuilder: (context, index) {
           // Return the Date Widget

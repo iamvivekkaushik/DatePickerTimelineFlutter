@@ -1,4 +1,3 @@
-import 'package:date_picker_timeline/extra/style.dart';
 /// ***
 /// This class consists of the DateWidget that is used in the ListView.builder
 ///
@@ -16,14 +15,13 @@ class DateWidget extends StatelessWidget {
   final Color selectionColor;
   final DateSelectionCallback onDateSelected;
 
-  DateWidget({
-      @required this.date,
+  DateWidget(
+      {@required this.date,
       @required this.monthTextStyle,
       @required this.dayTextStyle,
       @required this.dateTextStyle,
       @required this.selectionColor,
-      this.onDateSelected
-  });
+      this.onDateSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +33,8 @@ class DateWidget extends StatelessWidget {
           color: selectionColor,
         ),
         child: Padding(
-          padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 15, right: 15),
+          padding:
+              const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 15, right: 15),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -52,7 +51,7 @@ class DateWidget extends StatelessWidget {
       ),
       onTap: () {
         // Check if onDateSelected is not null
-        if (onDateSelected !=null) {
+        if (onDateSelected != null) {
           // Call the onDateSelected Function
           onDateSelected(this.date);
         }

@@ -25,40 +25,39 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  
   DateTime _selectedValue = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Container(padding: EdgeInsets.all(20.0),
-      color: Colors.blueGrey[100],
-      child: 
-      
-      Column(
-        
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text("You Selected:"),
-          Padding(padding: EdgeInsets.all(10),),
-          Text(_selectedValue.toString()),
-          Padding(padding: EdgeInsets.all(20),),
-
-          DatePickerTimeline(
-            _selectedValue,
-            onDateChange: (date) {
-              // New date selected
-              setState(() {
-                _selectedValue = date;
-              });
-
-            },
+        appBar: AppBar(
+          title: Text(widget.title),
+        ),
+        body: Container(
+          padding: EdgeInsets.all(20.0),
+          color: Colors.blueGrey[100],
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text("You Selected:"),
+              Padding(
+                padding: EdgeInsets.all(10),
+              ),
+              Text(_selectedValue.toString()),
+              Padding(
+                padding: EdgeInsets.all(20),
+              ),
+              DatePickerTimeline(
+                _selectedValue,
+                onDateChange: (date) {
+                  // New date selected
+                  setState(() {
+                    _selectedValue = date;
+                  });
+                },
+              ),
+            ],
           ),
-        ],
-      ),)
-    );
+        ));
   }
 }

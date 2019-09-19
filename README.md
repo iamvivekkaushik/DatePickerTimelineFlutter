@@ -41,10 +41,13 @@ Use the `DatePickerTimeline` Widget
     DatePickerTimeline(
         this.currentDate, {
         Key key,
+        this.width,
+        this.height = 80,
         this.monthTextStyle = defaultMonthTextStyle,
         this.dayTextStyle = defaultDayTextStyle,
         this.dateTextStyle = defaultDateTextStyle,
         this.selectionColor = AppColors.defaultSelectionColor,
+        this.daysCount = 50000,
         this.onDateChange,
       }) : super(key: key);
 ```
