@@ -1,6 +1,8 @@
-## [0.1] - 19/09/2019
+## [1.0.0] - 19/09/2019
 
 * Added ability to manage text style for month, date and day text.
+* Made changes to DatePickerTimeline constructor
+* First Major release
 
 ## [0.0.3] - 13/09/2019
 
