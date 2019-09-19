@@ -41,12 +41,9 @@ Use the `DatePickerTimeline` Widget
     DatePickerTimeline(
         this.currentDate, {
         Key key,
-        this.dateSize = Dimen.dateTextSize,
-        this.daySize = Dimen.dayTextSize,
-        this.monthSize = Dimen.monthTextSize,
-        this.dateColor = AppColors.defaultDateColor,
-        this.monthColor = AppColors.defaultMonthColor,
-        this.dayColor = AppColors.defaultDayColor,
+        this.monthTextStyle = defaultMonthTextStyle,
+        this.dayTextStyle = defaultDayTextStyle,
+        this.dateTextStyle = defaultDateTextStyle,
         this.selectionColor = AppColors.defaultSelectionColor,
         this.onDateChange,
       }) : super(key: key);

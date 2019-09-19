@@ -1,3 +1,4 @@
+import 'package:date_picker_timeline/extra/style.dart';
 /// ***
 /// This class consists of the DateWidget that is used in the ListView.builder
 ///
@@ -11,19 +12,15 @@ import 'package:intl/intl.dart';
 
 class DateWidget extends StatelessWidget {
   final DateTime date;
-  final double dateSize, daySize, monthSize;
-  final Color dateColor, monthColor, dayColor;
+  final TextStyle monthTextStyle, dayTextStyle, dateTextStyle;
   final Color selectionColor;
   final DateSelectionCallback onDateSelected;
 
   DateWidget({
       @required this.date,
-      @required this.dateSize,
-      @required this.daySize,
-      @required this.monthSize,
-      @required this.dateColor,
-      @required this.monthColor,
-      @required this.dayColor,
+      @required this.monthTextStyle,
+      @required this.dayTextStyle,
+      @required this.dateTextStyle,
       @required this.selectionColor,
       this.onDateSelected
   });
@@ -44,26 +41,11 @@ class DateWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Text(new DateFormat("MMM").format(date).toUpperCase(), // Month
-                  style: TextStyle(
-                    color: monthColor,
-                    fontSize: monthSize,
-                    fontFamily: 'Roboto',
-                    fontWeight: FontWeight.w500,
-                  )),
+                  style: monthTextStyle),
               Text(date.day.toString(), // Date
-                  style: TextStyle(
-                    color: dateColor,
-                    fontSize: dateSize,
-                    fontFamily: 'Roboto',
-                    fontWeight: FontWeight.w700,
-                  )),
+                  style: dateTextStyle),
               Text(new DateFormat("E").format(date).toUpperCase(), // WeekDay
-                  style: TextStyle(
-                    color: dayColor,
-                    fontSize: daySize,
-                    fontFamily: 'Roboto',
-                    fontWeight: FontWeight.w500,
-                  ))
+                  style: dayTextStyle)
             ],
           ),
         ),
