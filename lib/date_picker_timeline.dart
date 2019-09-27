@@ -7,27 +7,23 @@ import 'package:date_picker_timeline/gestures/tap.dart';
 import 'package:flutter/material.dart';
 
 class DatePickerTimeline extends StatefulWidget {
-  double width;
-  double height;
-
   TextStyle monthTextStyle, dayTextStyle, dateTextStyle;
   Color selectionColor;
   DateTime currentDate;
   DateChangeListener onDateChange;
-  int daysCount;
   String locale;
+  DateTime startDate;
+  ScrollController _scrollController = new ScrollController();
 
   // Creates the DatePickerTimeline Widget
   DatePickerTimeline(
     this.currentDate, {
     Key key,
-    this.width,
-    this.height = 80,
     this.monthTextStyle = defaultMonthTextStyle,
     this.dayTextStyle = defaultDayTextStyle,
     this.dateTextStyle = defaultDateTextStyle,
     this.selectionColor = AppColors.defaultSelectionColor,
-    this.daysCount = 50000,
+    this.startDate,
     this.onDateChange,
     this.locale,
   }) : super(key: key);
@@ -40,14 +36,14 @@ class _DatePickerState extends State<DatePickerTimeline> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: widget.width,
-      height: widget.height,
+      height: 80,
       child: ListView.builder(
-        itemCount: widget.daysCount,
+        itemCount: 365,
+        controller: widget._scrollController,
         scrollDirection: Axis.horizontal,
         itemBuilder: (context, index) {
           // Return the Date Widget
-          DateTime _date = DateTime.now().add(Duration(days: index));
+          DateTime _date = (widget.startDate ?? DateTime.now()).add(Duration(days: index));
           DateTime date = new DateTime(_date.year, _date.month, _date.day);
           bool isSelected = compareDate(date, widget.currentDate);
 
@@ -63,6 +59,8 @@ class _DatePickerState extends State<DatePickerTimeline> {
               // A date is selected
               if (widget.onDateChange != null) {
                 widget.onDateChange(selectedDate);
+                final difference = selectedDate.difference((widget.startDate ?? DateTime.now())).inDays;
+                scrollToPosition(difference);
               }
               setState(() {
                 widget.currentDate = selectedDate;
@@ -75,8 +73,18 @@ class _DatePickerState extends State<DatePickerTimeline> {
   }
 
   bool compareDate(DateTime date1, DateTime date2) {
-    return date1.day == date2.day &&
+    bool isEquals = (date1.day == date2.day &&
         date1.month == date2.month &&
-        date1.year == date2.year;
+        date1.year == date2.year);
+    if (isEquals) {
+      final difference = date1.difference((widget.startDate ?? DateTime.now())).inDays;
+      scrollToPosition(difference);
+    }
+
+    return isEquals;
+  }
+
+  void scrollToPosition(int position) {
+    widget._scrollController.animateTo(position * 62.0, duration: new Duration(seconds: 1), curve: Curves.ease);
   }
 }
