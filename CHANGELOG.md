@@ -1,5 +1,6 @@
-## [1.1.0] - 19/09/2019
+## [1.1.0] - 27/09/2019
 
+* Added Locale option to show date in different language
 * Added option to limit the number of date shown in the list
 * Added option to manage width and height of the timeline
 
