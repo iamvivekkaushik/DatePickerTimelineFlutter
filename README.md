@@ -1,6 +1,6 @@
-# DatePickerTimeline
+# MSDatePickerTimeline
 
-[![Pub](https://img.shields.io/pub/v/date_picker_timeline?color=%232bb6f6)](https://pub.dev/packages/date_picker_timeline)
+[![Pub](https://img.shields.io/pub/v/ms_date_picker_timeline?color=%232bb6f6)](https://pub.dev/packages/ms_date_picker_timeline)
 
 Flutter Date Picker Library that provides a calendar as a horizontal timeline.
 
@@ -13,19 +13,21 @@ Flutter Date Picker Library that provides a calendar as a horizontal timeline.
 Import the following package in your dart file
 
 ```
-import 'package:date_picker_timeline/date_picker_timeline.dart';
+import 'package:ms_date_picker_timeline/ms_date_picker_timeline.dart';
 ```
 
 ## Usage
 
-Use the `DatePickerTimeline` Widget
+Use the `MSDatePickerTimeline` Widget
 
 ```
     Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          DatePickerTimeline(
+          MSDatePickerTimeline(
             DateTime.now(),
+            locale: 'pt_BR',
+            startDate: DateTime.now(),
             onDateChange: (date) {
               // New date selected
               print(date.day.toString());
@@ -38,26 +40,24 @@ Use the `DatePickerTimeline` Widget
 ##### Constructor:
 
 ```
-    DatePickerTimeline(
-        this.currentDate, {
-        Key key,
-        this.width,
-        this.height = 80,
-        this.monthTextStyle = defaultMonthTextStyle,
-        this.dayTextStyle = defaultDayTextStyle,
-        this.dateTextStyle = defaultDateTextStyle,
-        this.selectionColor = AppColors.defaultSelectionColor,
-        this.daysCount = 50000,
-        this.onDateChange,
-      }) : super(key: key);
+    MSDatePickerTimeline(
+      this.currentDate, {
+      Key key,
+      this.monthTextStyle = defaultMonthTextStyle,
+      this.dayTextStyle = defaultDayTextStyle,
+      this.dateTextStyle = defaultDateTextStyle,
+      this.selectionColor = AppColors.defaultSelectionColor,
+      this.startDate,
+      this.onDateChange,
+      this.locale,
+    }) : super(key: key);
 ```
 
 Author
+* [Roger Medeiros](https://github.com/rogermedeirosdasilva/DatePickerTimelineFlutter/)
+
+
+Based in DatePickerTimelineFlutter
 ------
 
 * [Vivek Kaushik](http://github.com/iamvivekkaushik/)
-
-
-Contributors
-------------
-* [BradInTheUSA](https://github.com/bradintheusa)

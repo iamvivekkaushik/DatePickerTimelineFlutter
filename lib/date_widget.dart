@@ -1,14 +1,13 @@
-import 'package:date_picker_timeline/extra/style.dart';
 /// ***
 /// This class consists of the DateWidget that is used in the ListView.builder
 ///
 /// Author: Vivek Kaushik <me@vivekkasuhik.com>
 /// github: https://github.com/iamvivekkaushik/
 /// ***
-
-import 'package:date_picker_timeline/gestures/tap.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
+import 'gestures/tap.dart';
 
 class DateWidget extends StatelessWidget {
   final DateTime date;

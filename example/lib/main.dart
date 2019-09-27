@@ -1,5 +1,5 @@
-import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:flutter/material.dart';
+import '../../lib/ms_date_picker_timeline.dart';
 
 void main() => runApp(MyApp());
 
@@ -47,7 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
               Padding(
                 padding: EdgeInsets.all(20),
               ),
-              DatePickerTimeline(
+              MSDatePickerTimeline(
                 _selectedValue,
                 onDateChange: (date) {
                   // New date selected

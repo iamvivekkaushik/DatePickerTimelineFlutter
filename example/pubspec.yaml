@@ -20,7 +20,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  date_picker_timeline:
+  ms_date_picker_timeline:
     path: ../
 
   # The following adds the Cupertino Icons font to your application.
