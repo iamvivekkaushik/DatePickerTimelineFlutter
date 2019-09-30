@@ -5,6 +5,7 @@ import 'package:date_picker_timeline/extra/color.dart';
 import 'package:date_picker_timeline/extra/style.dart';
 import 'package:date_picker_timeline/gestures/tap.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class DatePickerTimeline extends StatefulWidget {
   double width;
@@ -29,7 +30,7 @@ class DatePickerTimeline extends StatefulWidget {
     this.selectionColor = AppColors.defaultSelectionColor,
     this.daysCount = 50000,
     this.onDateChange,
-    this.locale,
+    this.locale = "en_US",
   }) : super(key: key);
 
   @override
@@ -37,6 +38,13 @@ class DatePickerTimeline extends StatefulWidget {
 }
 
 class _DatePickerState extends State<DatePickerTimeline> {
+
+  @override void initState() {
+    super.initState();
+
+    initializeDateFormatting(widget.locale, null);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(

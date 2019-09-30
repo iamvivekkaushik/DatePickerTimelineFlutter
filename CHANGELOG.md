@@ -1,3 +1,7 @@
+## [1.1.3] - 30/09/2019
+
+* Fixed issue with Locale not being initialized
+
 ## [1.1.0] - 27/09/2019
 
 * Added Locale option to show date in different language
