@@ -6,6 +6,7 @@ import 'package:date_picker_timeline/extra/style.dart';
 import 'package:date_picker_timeline/gestures/tap.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:infinite_listview/infinite_listview.dart';
 
 class DatePickerTimeline extends StatefulWidget {
   double width;
@@ -50,7 +51,7 @@ class _DatePickerState extends State<DatePickerTimeline> {
     return Container(
       width: widget.width,
       height: widget.height,
-      child: ListView.builder(
+      child: InfiniteListView.builder(
         itemCount: widget.daysCount,
         scrollDirection: Axis.horizontal,
         itemBuilder: (context, index) {
