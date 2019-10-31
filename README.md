@@ -12,7 +12,7 @@ Flutter Date Picker Library that provides a calendar as a horizontal timeline.
 
 Import the following package in your dart file
 
-```
+```dart
 import 'package:date_picker_timeline/date_picker_timeline.dart';
 ```
 
@@ -20,37 +20,37 @@ import 'package:date_picker_timeline/date_picker_timeline.dart';
 
 Use the `DatePickerTimeline` Widget
 
-```
-    Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          DatePickerTimeline(
-            DateTime.now(),
-            onDateChange: (date) {
-              // New date selected
-              print(date.day.toString());
-            },
-          ),
-        ],
-    ),
+```dart
+Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: <Widget>[
+      DatePickerTimeline(
+        DateTime.now(),
+        onDateChange: (date) {
+          // New date selected
+          print(date.day.toString());
+        },
+      ),
+    ],
+),
 ```
 
 ##### Constructor:
 
-```
-    DatePickerTimeline(
-      this.currentDate, {
-      Key key,
-      this.width,
-      this.height = 80,
-      this.monthTextStyle = defaultMonthTextStyle,
-      this.dayTextStyle = defaultDayTextStyle,
-      this.dateTextStyle = defaultDateTextStyle,
-      this.selectionColor = AppColors.defaultSelectionColor,
-      this.daysCount = 50000,
-      this.onDateChange,
-      this.locale,
-    }) : super(key: key);
+```dart
+DatePickerTimeline(
+  this.currentDate, {
+  Key key,
+  this.width,
+  this.height = 80,
+  this.monthTextStyle = defaultMonthTextStyle,
+  this.dayTextStyle = defaultDayTextStyle,
+  this.dateTextStyle = defaultDateTextStyle,
+  this.selectionColor = AppColors.defaultSelectionColor,
+  this.daysCount = 50000,
+  this.onDateChange,
+  this.locale,
+}) : super(key: key);
 ```
 
 Author
