@@ -60,7 +60,7 @@ class _MSDatePickerState extends State<MSDatePickerTimeline> {
               if (widget.onDateChange != null) {
                 widget.onDateChange(selectedDate);
                 final difference = selectedDate.difference((widget.startDate ?? DateTime.now())).inDays;
-                scrollToPosition(difference);
+                if(difference>0){ scrollToPosition(difference);}
               }
               /*
               setState(() {
@@ -80,7 +80,7 @@ class _MSDatePickerState extends State<MSDatePickerTimeline> {
         date1.year == date2.year);
     if (isEquals) {
       final difference = date1.difference((widget.startDate ?? DateTime.now())).inDays;
-      scrollToPosition(difference);
+      if(difference>0){ scrollToPosition(difference);}
     }
 
     return isEquals;
