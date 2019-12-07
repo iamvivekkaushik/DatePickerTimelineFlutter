@@ -12,7 +12,7 @@ Flutter Date Picker Library that provides a calendar as a horizontal timeline.
 
 Import the following package in your dart file
 
-```
+```dart
 import 'package:date_picker_timeline/date_picker_timeline.dart';
 ```
 
@@ -20,7 +20,7 @@ import 'package:date_picker_timeline/date_picker_timeline.dart';
 
 Use the `DatePickerTimeline` Widget
 
-```
+```dart
     Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
@@ -37,7 +37,7 @@ Use the `DatePickerTimeline` Widget
 
 ##### Constructor:
 
-```
+```dart
     DatePickerTimeline(
       this.currentDate, {
       Key key,
