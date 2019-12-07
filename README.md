@@ -32,7 +32,7 @@ Column(
         },
       ),
     ],
-),
+)
 ```
 
 ##### Constructor:
