@@ -56,6 +56,23 @@ class _MyHomePageState extends State<MyHomePage> {
                   });
                 },
               ),
+              Padding(
+                padding: EdgeInsets.all(50),
+              ),
+              Text("With edge fadding"),
+              Padding(
+                padding: EdgeInsets.all(10),
+              ),
+              DatePickerTimeline(
+                _selectedValue,
+                isEdgeFadding: true,
+                onDateChange: (date) {
+                  // New date selected
+                  setState(() {
+                    _selectedValue = date;
+                  });
+                },
+              ),
             ],
           ),
         ));

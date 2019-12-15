@@ -4,6 +4,7 @@ import 'package:date_picker_timeline/date_widget.dart';
 import 'package:date_picker_timeline/extra/color.dart';
 import 'package:date_picker_timeline/extra/style.dart';
 import 'package:date_picker_timeline/gestures/tap.dart';
+import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -17,6 +18,7 @@ class DatePickerTimeline extends StatefulWidget {
   DateChangeListener onDateChange;
   int daysCount;
   String locale;
+  bool isEdgeFadding;
 
   // Creates the DatePickerTimeline Widget
   DatePickerTimeline(
@@ -31,6 +33,7 @@ class DatePickerTimeline extends StatefulWidget {
     this.daysCount = 50000,
     this.onDateChange,
     this.locale = "en_US",
+    this.isEdgeFadding = false,
   }) : super(key: key);
 
   @override
@@ -38,8 +41,8 @@ class DatePickerTimeline extends StatefulWidget {
 }
 
 class _DatePickerState extends State<DatePickerTimeline> {
-
-  @override void initState() {
+  @override
+  void initState() {
     super.initState();
 
     initializeDateFormatting(widget.locale, null);
@@ -48,37 +51,43 @@ class _DatePickerState extends State<DatePickerTimeline> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: widget.width,
-      height: widget.height,
-      child: ListView.builder(
-        itemCount: widget.daysCount,
-        scrollDirection: Axis.horizontal,
-        itemBuilder: (context, index) {
-          // Return the Date Widget
-          DateTime _date = DateTime.now().add(Duration(days: index));
-          DateTime date = new DateTime(_date.year, _date.month, _date.day);
-          bool isSelected = compareDate(date, widget.currentDate);
+        width: widget.width,
+        height: widget.height,
+        child: widget.isEdgeFadding
+            ? (FadingEdgeScrollView.fromScrollView(child: buildList(context)))
+            : buildList(context));
+  }
 
-          return DateWidget(
-            date: date,
-            monthTextStyle: widget.monthTextStyle,
-            dateTextStyle: widget.dateTextStyle,
-            dayTextStyle: widget.dayTextStyle,
-            locale: widget.locale,
-            selectionColor:
-                isSelected ? widget.selectionColor : Colors.transparent,
-            onDateSelected: (selectedDate) {
-              // A date is selected
-              if (widget.onDateChange != null) {
-                widget.onDateChange(selectedDate);
-              }
-              setState(() {
-                widget.currentDate = selectedDate;
-              });
-            },
-          );
-        },
-      ),
+  Widget buildList(BuildContext context) {
+    return ListView.builder(
+      itemCount: widget.daysCount,
+      scrollDirection: Axis.horizontal,
+      controller: new ScrollController(),
+      itemBuilder: (context, index) {
+        // Return the Date Widget
+        DateTime _date = DateTime.now().add(Duration(days: index));
+        DateTime date = new DateTime(_date.year, _date.month, _date.day);
+        bool isSelected = compareDate(date, widget.currentDate);
+
+        return DateWidget(
+          date: date,
+          monthTextStyle: widget.monthTextStyle,
+          dateTextStyle: widget.dateTextStyle,
+          dayTextStyle: widget.dayTextStyle,
+          locale: widget.locale,
+          selectionColor:
+              isSelected ? widget.selectionColor : Colors.transparent,
+          onDateSelected: (selectedDate) {
+            // A date is selected
+            if (widget.onDateChange != null) {
+              widget.onDateChange(selectedDate);
+            }
+            setState(() {
+              widget.currentDate = selectedDate;
+            });
+          },
+        );
+      },
     );
   }
 
