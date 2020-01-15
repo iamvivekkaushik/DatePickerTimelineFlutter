@@ -5,14 +5,19 @@ import 'package:date_picker_timeline/extra/color.dart';
 import 'package:date_picker_timeline/extra/style.dart';
 import 'package:date_picker_timeline/gestures/tap.dart';
 import 'package:flutter/material.dart';
+import 'package:infinite_listview/infinite_listview.dart';
 import 'package:intl/date_symbol_data_local.dart';
+
+import 'extra/color.dart';
+import 'extra/color.dart';
+import 'extra/color.dart';
 
 class DatePickerTimeline extends StatefulWidget {
   double width;
   double height;
 
   TextStyle monthTextStyle, dayTextStyle, dateTextStyle;
-  Color selectionColor;
+  Color selectionColor, inactiveTextColor;
   DateTime currentDate;
   DateChangeListener onDateChange;
   int daysCount;
@@ -28,6 +33,7 @@ class DatePickerTimeline extends StatefulWidget {
     this.dayTextStyle = defaultDayTextStyle,
     this.dateTextStyle = defaultDateTextStyle,
     this.selectionColor = AppColors.defaultSelectionColor,
+    this.inactiveTextColor = AppColors.defaultInactiveColor,
     this.daysCount = 50000,
     this.onDateChange,
     this.locale = "en_US",
@@ -50,7 +56,7 @@ class _DatePickerState extends State<DatePickerTimeline> {
     return Container(
       width: widget.width,
       height: widget.height,
-      child: ListView.builder(
+      child: InfiniteListView.builder(
         itemCount: widget.daysCount,
         scrollDirection: Axis.horizontal,
         itemBuilder: (context, index) {
@@ -61,9 +67,9 @@ class _DatePickerState extends State<DatePickerTimeline> {
 
           return DateWidget(
             date: date,
-            monthTextStyle: widget.monthTextStyle,
-            dateTextStyle: widget.dateTextStyle,
-            dayTextStyle: widget.dayTextStyle,
+            monthTextStyle: widget.monthTextStyle.copyWith(color: isSelected ? AppColors.defaultMonthColor : widget.inactiveTextColor),
+            dateTextStyle: widget.dateTextStyle.copyWith(color: isSelected ? AppColors.defaultDateColor : widget.inactiveTextColor),
+            dayTextStyle: widget.dayTextStyle.copyWith(color: isSelected ? AppColors.defaultDayColor : widget.inactiveTextColor),
             locale: widget.locale,
             selectionColor:
                 isSelected ? widget.selectionColor : Colors.transparent,
