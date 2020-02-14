@@ -17,29 +17,30 @@ class DatePickerTimeline extends StatefulWidget {
   DateChangeListener onDateChange;
   int daysCount;
   String locale;
+  bool orientation;
 
   // Creates the DatePickerTimeline Widget
-  DatePickerTimeline(
-    this.currentDate, {
-    Key key,
-    this.width,
-    this.height = 80,
-    this.monthTextStyle = defaultMonthTextStyle,
-    this.dayTextStyle = defaultDayTextStyle,
-    this.dateTextStyle = defaultDateTextStyle,
-    this.selectionColor = AppColors.defaultSelectionColor,
-    this.daysCount = 50000,
-    this.onDateChange,
-    this.locale = "en_US",
-  }) : super(key: key);
+  DatePickerTimeline(this.currentDate,
+      {Key key,
+      this.width,
+      this.height = 80,
+      this.monthTextStyle = defaultMonthTextStyle,
+      this.dayTextStyle = defaultDayTextStyle,
+      this.dateTextStyle = defaultDateTextStyle,
+      this.selectionColor = AppColors.defaultSelectionColor,
+      this.daysCount = 50000,
+      this.onDateChange,
+      this.locale = "en_US",
+      this.orientation = false})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => new _DatePickerState();
 }
 
 class _DatePickerState extends State<DatePickerTimeline> {
-
-  @override void initState() {
+  @override
+  void initState() {
     super.initState();
 
     initializeDateFormatting(widget.locale, null);
@@ -51,6 +52,7 @@ class _DatePickerState extends State<DatePickerTimeline> {
       width: widget.width,
       height: widget.height,
       child: ListView.builder(
+        reverse: widget.orientation,
         itemCount: widget.daysCount,
         scrollDirection: Axis.horizontal,
         itemBuilder: (context, index) {
