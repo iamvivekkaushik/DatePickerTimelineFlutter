@@ -17,7 +17,7 @@ class DatePickerTimeline extends StatefulWidget {
   DateChangeListener onDateChange;
   int daysCount;
   String locale;
-  bool orientation;
+  bool reverseCalendar;
 
   // Creates the DatePickerTimeline Widget
   DatePickerTimeline(this.currentDate,
@@ -31,7 +31,7 @@ class DatePickerTimeline extends StatefulWidget {
       this.daysCount = 50000,
       this.onDateChange,
       this.locale = "en_US",
-      this.orientation = false})
+      this.reverseCalendar = false})
       : super(key: key);
 
   @override
@@ -52,7 +52,7 @@ class _DatePickerState extends State<DatePickerTimeline> {
       width: widget.width,
       height: widget.height,
       child: ListView.builder(
-        reverse: widget.orientation,
+        reverse: widget.reverseCalendar,
         itemCount: widget.daysCount,
         scrollDirection: Axis.horizontal,
         itemBuilder: (context, index) {
