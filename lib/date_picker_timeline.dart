@@ -55,7 +55,7 @@ class _DatePickerState extends State<DatePickerTimeline> {
         scrollDirection: Axis.horizontal,
         itemBuilder: (context, index) {
           // Return the Date Widget
-          DateTime _date = DateTime.now().add(Duration(days: index));
+          DateTime _date = widget.currentDate.add(Duration(days: index));
           DateTime date = new DateTime(_date.year, _date.month, _date.day);
           bool isSelected = compareDate(date, widget.currentDate);
 
