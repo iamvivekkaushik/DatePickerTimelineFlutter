@@ -47,14 +47,21 @@ class _MyHomePageState extends State<MyHomePage> {
               Padding(
                 padding: EdgeInsets.all(20),
               ),
-              DatePickerTimeline(
-                _selectedValue,
-                onDateChange: (date) {
-                  // New date selected
-                  setState(() {
-                    _selectedValue = date;
-                  });
-                },
+              Container(
+                child: DatePicker(
+                  DateTime.now(),
+                  width: 60,
+                  height: 80,
+                  startDate: DateTime.now().add(Duration(days: -30)),
+                  selectionColor: Colors.black,
+                  selectedTextColor: Colors.white,
+                  onDateChange: (date) {
+                    // New date selected
+                    setState(() {
+                      _selectedValue = date;
+                    });
+                  },
+                ),
               ),
             ],
           ),
