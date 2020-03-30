@@ -18,17 +18,24 @@ import 'package:date_picker_timeline/date_picker_timeline.dart';
 
 ## Usage
 
-Use the `DatePickerTimeline` Widget
+This version is breaking backwards compatibility
+
+Use the `DatePicker` Widget
 
 ```dart
 Column(
     mainAxisAlignment: MainAxisAlignment.center,
     children: <Widget>[
-      DatePickerTimeline(
+      DatePicker(
         DateTime.now(),
+        initialSelectedDate: DateTime.now(),
+        selectionColor: Colors.black,
+        selectedTextColor: Colors.white,
         onDateChange: (date) {
           // New date selected
-          print(date.day.toString());
+          setState(() {
+            _selectedValue = date;
+          });
         },
       ),
     ],
@@ -38,18 +45,21 @@ Column(
 ##### Constructor:
 
 ```dart
-DatePickerTimeline(
-  this.currentDate, {
-  Key key,
-  this.width,
-  this.height = 80,
-  this.monthTextStyle = defaultMonthTextStyle,
-  this.dayTextStyle = defaultDayTextStyle,
-  this.dateTextStyle = defaultDateTextStyle,
-  this.selectionColor = AppColors.defaultSelectionColor,
-  this.daysCount = 50000,
-  this.onDateChange,
-  this.locale,
+DatePicker(
+    this.startDate, {
+    Key key,
+    this.width = 60,
+    this.height = 80,
+    this.controller,
+    this.monthTextStyle = defaultMonthTextStyle,
+    this.dayTextStyle = defaultDayTextStyle,
+    this.dateTextStyle = defaultDateTextStyle,
+    this.selectedTextColor = Colors.white,
+    this.selectionColor = AppColors.defaultSelectionColor,
+    this.initialSelectedDate,
+    this.daysCount = 500,
+    this.onDateChange,
+    this.locale = "en_US",
 }) : super(key: key);
 ```
 
