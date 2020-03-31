@@ -16,17 +16,19 @@ class DateWidget extends StatelessWidget {
   final Color selectionColor;
   final DateSelectionCallback onDateSelected;
   final String locale;
+  final bool shouldShowToday;
 
-  DateWidget(
-      {@required this.date,
-      @required this.monthTextStyle,
-      @required this.dayTextStyle,
-      @required this.dateTextStyle,
-      @required this.selectionColor,
-      this.width,
-      this.onDateSelected,
-      this.locale,
-      });
+  DateWidget({
+    @required this.date,
+    @required this.monthTextStyle,
+    @required this.dayTextStyle,
+    @required this.dateTextStyle,
+    @required this.selectionColor,
+    this.width,
+    this.onDateSelected,
+    this.shouldShowToday = false,
+    this.locale,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -44,12 +46,28 @@ class DateWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              Text(new DateFormat("MMM", locale).format(date).toUpperCase(), // Month
-                  style: monthTextStyle),
-              Text(date.day.toString(), // Date
-                  style: dateTextStyle),
-              Text(new DateFormat("E", locale).format(date).toUpperCase(), // WeekDay
-                  style: dayTextStyle)
+              RichText(
+                text: TextSpan(
+                  text: DateFormat("MMM", locale)
+                      .format(date)
+                      .toUpperCase(), // Month
+                  style: monthTextStyle,
+                ), // WeekDay
+              ),
+              RichText(
+                text: TextSpan(
+                  text: date.day.toString(), // Date
+                  style: dateTextStyle,
+                ), // WeekDay
+              ),
+              RichText(
+                text: TextSpan(
+                  text: shouldShowToday
+                      ? 'Today'
+                      : DateFormat("E", locale).format(date).toUpperCase(),
+                  style: dayTextStyle,
+                ), // WeekDay
+              )
             ],
           ),
         ),
