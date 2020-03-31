@@ -127,17 +127,33 @@ class _DatePickerState extends State<DatePicker> {
         letterSpacing: style.letterSpacing,
       );
     } else {
-      if (widget.fontSize != 0) {
-        style.copyWith(fontSize: widget.fontSize > 14 ? 14 : widget.fontSize);
-      }
-      if (widget.fontFamily != '') {
-        style.copyWith(fontFamily: widget.fontFamily);
-      }
-      if (widget.fontWeight != null) {
-        style.copyWith(fontWeight: widget.fontWeight);
-      }
-      return style;
+      return TextStyle(
+        color: style.color,
+        fontSize: widget.fontSize == 0
+            ? style.fontSize
+            : widget.fontSize > 14 ? 14 : widget.fontSize,
+        fontWeight:
+            widget.fontWeight == null ? style.fontWeight : widget.fontWeight,
+        fontFamily:
+            widget.fontFamily == '' ? style.fontFamily : widget.fontFamily,
+        letterSpacing: style.letterSpacing,
+      );
     }
+  }
+
+  /// This will return a text style for the Unselected date Text Values
+  TextStyle createUnSelectedTextStyle(TextStyle style) {
+    return TextStyle(
+      color: style.color,
+      fontSize: widget.fontSize == 0
+          ? style.fontSize
+          : widget.fontSize > 14 ? 14 : widget.fontSize,
+      fontWeight:
+          widget.fontWeight == null ? style.fontWeight : widget.fontWeight,
+      fontFamily:
+          widget.fontFamily == '' ? style.fontFamily : widget.fontFamily,
+      letterSpacing: style.letterSpacing,
+    );
   }
 
   @override
@@ -164,11 +180,15 @@ class _DatePickerState extends State<DatePicker> {
                 ? date.day == DateTime.now().day ? true : false
                 : false,
             date: date,
-            monthTextStyle:
-                isSelected ? selectedMonthStyle : widget.monthTextStyle,
-            dateTextStyle:
-                isSelected ? selectedDateStyle : widget.dateTextStyle,
-            dayTextStyle: isSelected ? selectedDayStyle : widget.dayTextStyle,
+            monthTextStyle: isSelected
+                ? selectedMonthStyle
+                : createUnSelectedTextStyle(widget.monthTextStyle),
+            dateTextStyle: isSelected
+                ? selectedDateStyle
+                : createUnSelectedTextStyle(widget.dateTextStyle),
+            dayTextStyle: isSelected
+                ? selectedDayStyle
+                : createUnSelectedTextStyle(widget.dayTextStyle),
             width: widget.width,
             locale: widget.locale,
             selectionColor:
