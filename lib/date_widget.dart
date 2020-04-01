@@ -46,28 +46,20 @@ class DateWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              RichText(
-                text: TextSpan(
-                  text: DateFormat("MMM", locale)
-                      .format(date)
-                      .toUpperCase(), // Month
-                  style: monthTextStyle,
-                ), // WeekDay
+              Text(
+                DateFormat("MMM", locale).format(date).toUpperCase(), // Month
+                style: monthTextStyle,
               ),
-              RichText(
-                text: TextSpan(
-                  text: date.day.toString(), // Date
-                  style: dateTextStyle,
-                ), // WeekDay
+              Text(
+                date.day.toString(), // Date
+                style: dateTextStyle,
               ),
-              RichText(
-                text: TextSpan(
-                  text: shouldShowToday
-                      ? 'Today'
-                      : DateFormat("E", locale).format(date).toUpperCase(),
-                  style: dayTextStyle,
-                ), // WeekDay
-              )
+              Text(
+                shouldShowToday
+                    ? 'Today'
+                    : DateFormat("E", locale).format(date).toUpperCase(),
+                style: dayTextStyle,
+              ),
             ],
           ),
         ),
