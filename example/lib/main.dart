@@ -25,11 +25,25 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  DatePickerController _controller = DatePickerController();
+
   DateTime _selectedValue = DateTime.now();
+
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.replay),
+        onPressed: () {
+          _controller.animateToSelection();
+        },
+      ),
         appBar: AppBar(
           title: Text(widget.title),
         ),
@@ -47,14 +61,22 @@ class _MyHomePageState extends State<MyHomePage> {
               Padding(
                 padding: EdgeInsets.all(20),
               ),
-              DatePickerTimeline(
-                _selectedValue,
-                onDateChange: (date) {
-                  // New date selected
-                  setState(() {
-                    _selectedValue = date;
-                  });
-                },
+              Container(
+                child: DatePicker(
+                  DateTime.now().add(Duration(days: -3)),
+                  width: 60,
+                  height: 80,
+                  controller: _controller,
+                  initialSelectedDate: DateTime.now(),
+                  selectionColor: Colors.black,
+                  selectedTextColor: Colors.white,
+                  onDateChange: (date) {
+                    // New date selected
+                    setState(() {
+                      _selectedValue = date;
+                    });
+                  },
+                ),
               ),
             ],
           ),

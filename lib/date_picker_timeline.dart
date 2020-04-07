@@ -90,3 +90,4 @@ class _DatePickerState extends State<DatePickerTimeline> {
         date1.year == date2.year;
   }
 }
+export 'date_picker_widget.dart';

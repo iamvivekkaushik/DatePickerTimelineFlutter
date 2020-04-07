@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class DateWidget extends StatelessWidget {
+  final double width;
   final DateTime date;
   final TextStyle monthTextStyle, dayTextStyle, dateTextStyle;
   final Color selectionColor;
@@ -22,6 +23,7 @@ class DateWidget extends StatelessWidget {
       @required this.dayTextStyle,
       @required this.dateTextStyle,
       @required this.selectionColor,
+      this.width,
       this.onDateSelected,
       this.locale,
       });
@@ -30,16 +32,16 @@ class DateWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       child: Container(
+        width: width,
         margin: EdgeInsets.all(3.0),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(8.0)),
           color: selectionColor,
         ),
         child: Padding(
-          padding:
-              const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 15, right: 15),
+          padding: EdgeInsets.all(8),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Text(new DateFormat("MMM", locale).format(date).toUpperCase(), // Month
