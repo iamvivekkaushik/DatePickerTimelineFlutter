@@ -19,3 +19,10 @@ const TextStyle defaultDayTextStyle = TextStyle(
   fontSize: Dimen.dayTextSize,
   fontWeight: FontWeight.w500,
 );
+
+
+const TextStyle defaultYearTextStyle = TextStyle(
+  color: AppColors.defaultDayColor,
+  fontSize: Dimen.yearTextSize,
+  fontWeight: FontWeight.w500,
+);

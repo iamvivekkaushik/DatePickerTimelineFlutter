@@ -70,6 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   initialSelectedDate: DateTime.now(),
                   selectionColor: Colors.black,
                   selectedTextColor: Colors.white,
+//                  timelineType: TimelineType.MONTH,
                   onDateChange: (date) {
                     // New date selected
                     setState(() {

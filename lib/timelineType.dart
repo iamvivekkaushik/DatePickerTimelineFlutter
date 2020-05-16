@@ -1,0 +1,1 @@
+enum TimelineType { DAY, MONTH }
