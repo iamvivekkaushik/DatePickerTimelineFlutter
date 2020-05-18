@@ -156,6 +156,16 @@ class _DatePickerState extends State<DatePicker> {
     );
   }
 
+  @override
+  void didUpdateWidget (DatePicker oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    
+    // if widget is updated and initial selected date is different from before
+    // reset currently selected date
+    if(oldWidget.initialSelectedDate != widget.initialSelectedDate)
+      _currentDate = widget.initialSelectedDate;
+  }
+
   /// Helper function to compare two dates
   /// Returns True if both dates are the same
   bool _compareDate(DateTime date1, DateTime date2) {
