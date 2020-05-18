@@ -127,7 +127,7 @@ class _DatePickerState extends State<DatePicker> {
           date = new DateTime(_date.year, _date.month, _date.day);
 
           // Check if this date is the one that is currently selected
-          bool isSelected = _compareDate(date, _currentDate);
+          bool isSelected = _currentDate != null? _compareDate(date, _currentDate) : false;
 
           // Return the Date Widget
           return DateWidget(
