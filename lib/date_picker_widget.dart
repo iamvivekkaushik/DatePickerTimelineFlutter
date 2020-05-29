@@ -47,6 +47,9 @@ class DatePicker extends StatefulWidget {
   /// Locale for the calendar default: en_us
   final String locale;
 
+  /// Enable only dates of this list.
+  final List<DateTime> enabledDates;
+
   DatePicker(
     this.startDate, {
     Key key,
@@ -62,6 +65,7 @@ class DatePicker extends StatefulWidget {
     this.daysCount = 500,
     this.onDateChange,
     this.locale = "en_US",
+    this.enabledDates,
   }) : super(key: key);
 
   @override
@@ -127,7 +131,8 @@ class _DatePickerState extends State<DatePicker> {
           date = new DateTime(_date.year, _date.month, _date.day);
 
           // Check if this date is the one that is currently selected
-          bool isSelected = _currentDate != null? _compareDate(date, _currentDate) : false;
+          bool isSelected =
+              _currentDate != null ? _compareDate(date, _currentDate) : false;
 
           // Return the Date Widget
           return DateWidget(
@@ -141,6 +146,7 @@ class _DatePickerState extends State<DatePicker> {
             locale: widget.locale,
             selectionColor:
                 isSelected ? widget.selectionColor : Colors.transparent,
+            isEnabled: _checkIsEnabled(date),
             onDateSelected: (selectedDate) {
               // A date is selected
               if (widget.onDateChange != null) {
@@ -162,6 +168,13 @@ class _DatePickerState extends State<DatePicker> {
     return date1.day == date2.day &&
         date1.month == date2.month &&
         date1.year == date2.year;
+  }
+
+  /// Check if date is in enabledDates list
+  bool _checkIsEnabled(DateTime date) {
+    if (widget.enabledDates == null) return true;
+
+    return widget.enabledDates.any((element) => _compareDate(element, date));
   }
 }
 

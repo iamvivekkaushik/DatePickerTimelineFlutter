@@ -19,3 +19,21 @@ const TextStyle defaultDayTextStyle = TextStyle(
   fontSize: Dimen.dayTextSize,
   fontWeight: FontWeight.w500,
 );
+
+const TextStyle disabledMonthTextStyle = TextStyle(
+  color: AppColors.defaultDisabledColor,
+  fontSize: Dimen.monthTextSize,
+  fontWeight: FontWeight.w500,
+);
+
+const TextStyle disabledDateTextStyle = TextStyle(
+  color: AppColors.defaultDisabledColor,
+  fontSize: Dimen.dateTextSize,
+  fontWeight: FontWeight.w500,
+);
+
+const TextStyle disabledDayTextStyle = TextStyle(
+  color: AppColors.defaultDisabledColor,
+  fontSize: Dimen.dayTextSize,
+  fontWeight: FontWeight.w500,
+);

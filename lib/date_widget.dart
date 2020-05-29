@@ -9,6 +9,8 @@ import 'package:date_picker_timeline/gestures/tap.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import 'extra/style.dart';
+
 class DateWidget extends StatelessWidget {
   final double width;
   final DateTime date;
@@ -16,17 +18,19 @@ class DateWidget extends StatelessWidget {
   final Color selectionColor;
   final DateSelectionCallback onDateSelected;
   final String locale;
+  final bool isEnabled;
 
-  DateWidget(
-      {@required this.date,
-      @required this.monthTextStyle,
-      @required this.dayTextStyle,
-      @required this.dateTextStyle,
-      @required this.selectionColor,
-      this.width,
-      this.onDateSelected,
-      this.locale,
-      });
+  DateWidget({
+    @required this.date,
+    @required this.monthTextStyle,
+    @required this.dayTextStyle,
+    @required this.dateTextStyle,
+    @required this.selectionColor,
+    @required this.isEnabled,
+    this.width,
+    this.onDateSelected,
+    this.locale,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -44,17 +48,26 @@ class DateWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              Text(new DateFormat("MMM", locale).format(date).toUpperCase(), // Month
-                  style: monthTextStyle),
+              Text(
+                  new DateFormat("MMM", locale)
+                      .format(date)
+                      .toUpperCase(), // Month
+                  style: isEnabled ? monthTextStyle : disabledMonthTextStyle),
               Text(date.day.toString(), // Date
-                  style: dateTextStyle),
-              Text(new DateFormat("E", locale).format(date).toUpperCase(), // WeekDay
-                  style: dayTextStyle)
+                  style: isEnabled ? dateTextStyle : disabledDateTextStyle),
+              Text(
+                  new DateFormat("E", locale)
+                      .format(date)
+                      .toUpperCase(), // WeekDay
+                  style: isEnabled ? dayTextStyle : disabledDayTextStyle)
             ],
           ),
         ),
       ),
       onTap: () {
+        // Check if a enabled date
+        if (!isEnabled) return;
+
         // Check if onDateSelected is not null
         if (onDateSelected != null) {
           // Call the onDateSelected Function
