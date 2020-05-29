@@ -60,7 +60,7 @@ DatePicker(
     this.daysCount = 500,
     this.onDateChange,
     this.locale = "en_US",
-    this.enabledDates
+    this.enabledDates,
 }) : super(key: key);
 ```
 
