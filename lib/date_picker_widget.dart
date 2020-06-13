@@ -47,6 +47,18 @@ class DatePicker extends StatefulWidget {
   /// Locale for the calendar default: en_us
   final String locale;
 
+  /// Should show day as today
+  final bool shouldShowToday;
+
+  /// Custom Font Family
+  final String fontFamily;
+
+  /// Custom Font Size
+  final double fontSize;
+
+  /// Custom Font weight
+  final FontWeight fontWeight;
+
   DatePicker(
     this.startDate, {
     Key key,
@@ -61,11 +73,15 @@ class DatePicker extends StatefulWidget {
     this.initialSelectedDate,
     this.daysCount = 500,
     this.onDateChange,
+    this.shouldShowToday = false,
     this.locale = "en_US",
+    this.fontSize = 0,
+    this.fontFamily = '',
+    this.fontWeight,
   }) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => new _DatePickerState();
+  State<StatefulWidget> createState() => _DatePickerState();
 }
 
 class _DatePickerState extends State<DatePicker> {
@@ -101,14 +117,43 @@ class _DatePickerState extends State<DatePicker> {
     if (widget.selectedTextColor != null) {
       return TextStyle(
         color: widget.selectedTextColor,
-        fontSize: style.fontSize,
-        fontWeight: style.fontWeight,
-        fontFamily: style.fontFamily,
+        fontSize: widget.fontSize == 0
+            ? style.fontSize
+            : widget.fontSize > 14 ? 14 : widget.fontSize,
+        fontWeight:
+            widget.fontWeight == null ? style.fontWeight : widget.fontWeight,
+        fontFamily:
+            widget.fontFamily == '' ? style.fontFamily : widget.fontFamily,
         letterSpacing: style.letterSpacing,
       );
     } else {
-      return style;
+      return TextStyle(
+        color: style.color,
+        fontSize: widget.fontSize == 0
+            ? style.fontSize
+            : widget.fontSize > 14 ? 14 : widget.fontSize,
+        fontWeight:
+            widget.fontWeight == null ? style.fontWeight : widget.fontWeight,
+        fontFamily:
+            widget.fontFamily == '' ? style.fontFamily : widget.fontFamily,
+        letterSpacing: style.letterSpacing,
+      );
     }
+  }
+
+  /// This will return a text style for the Unselected date Text Values
+  TextStyle createUnSelectedTextStyle(TextStyle style) {
+    return TextStyle(
+      color: style.color,
+      fontSize: widget.fontSize == 0
+          ? style.fontSize
+          : widget.fontSize > 14 ? 14 : widget.fontSize,
+      fontWeight:
+          widget.fontWeight == null ? style.fontWeight : widget.fontWeight,
+      fontFamily:
+          widget.fontFamily == '' ? style.fontFamily : widget.fontFamily,
+      letterSpacing: style.letterSpacing,
+    );
   }
 
   @override
@@ -124,19 +169,26 @@ class _DatePickerState extends State<DatePicker> {
           // if widget.startDate is null then use the initialDateValue
           DateTime date;
           DateTime _date = widget.startDate.add(Duration(days: index));
-          date = new DateTime(_date.year, _date.month, _date.day);
+          date = DateTime(_date.year, _date.month, _date.day);
 
           // Check if this date is the one that is currently selected
           bool isSelected = _currentDate != null? _compareDate(date, _currentDate) : false;
 
           // Return the Date Widget
           return DateWidget(
+            shouldShowToday: widget.shouldShowToday
+                ? date.day == DateTime.now().day ? true : false
+                : false,
             date: date,
-            monthTextStyle:
-                isSelected ? selectedMonthStyle : widget.monthTextStyle,
-            dateTextStyle:
-                isSelected ? selectedDateStyle : widget.dateTextStyle,
-            dayTextStyle: isSelected ? selectedDayStyle : widget.dayTextStyle,
+            monthTextStyle: isSelected
+                ? selectedMonthStyle
+                : createUnSelectedTextStyle(widget.monthTextStyle),
+            dateTextStyle: isSelected
+                ? selectedDateStyle
+                : createUnSelectedTextStyle(widget.dateTextStyle),
+            dayTextStyle: isSelected
+                ? selectedDayStyle
+                : createUnSelectedTextStyle(widget.dayTextStyle),
             width: widget.width,
             locale: widget.locale,
             selectionColor:
