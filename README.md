@@ -8,6 +8,10 @@ Flutter Date Picker Library that provides a calendar as a horizontal timeline.
  <img src="https://raw.githubusercontent.com/iamvivekkaushik/DatePickerTimelineFlutter/master/screenshots/demo.gif?raw=true"/>
 </p>
 
+<p>
+ <img src="https://raw.githubusercontent.com/tanmaypandharipande/DatePickerTimelineFlutter/master/screenshots/monthDatePicker.png?raw=true"/>
+</p>
+
 ## How To Use
 
 Import the following package in your dart file
@@ -31,6 +35,7 @@ Column(
         initialSelectedDate: DateTime.now(),
         selectionColor: Colors.black,
         selectedTextColor: Colors.white,
+     // timelineType: TimelineType.MONTH,
         onDateChange: (date) {
           // New date selected
           setState(() {
@@ -45,8 +50,7 @@ Column(
 ##### Constructor:
 
 ```dart
-DatePicker(
-    this.startDate, {
+DatePicker(this.startDate, {
     Key key,
     this.width = 60,
     this.height = 80,
@@ -54,13 +58,15 @@ DatePicker(
     this.monthTextStyle = defaultMonthTextStyle,
     this.dayTextStyle = defaultDayTextStyle,
     this.dateTextStyle = defaultDateTextStyle,
+    this.yearTextStyle = defaultYearTextStyle,
     this.selectedTextColor = Colors.white,
     this.selectionColor = AppColors.defaultSelectionColor,
     this.initialSelectedDate,
     this.daysCount = 500,
     this.onDateChange,
     this.locale = "en_US",
-}) : super(key: key);
+    this.timelineType = TimelineType.DAY
+  }) : super(key: key);
 ```
 
 Author
