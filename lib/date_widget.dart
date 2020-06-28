@@ -17,16 +17,16 @@ class DateWidget extends StatelessWidget {
   final DateSelectionCallback onDateSelected;
   final String locale;
 
-  DateWidget(
-      {@required this.date,
-      @required this.monthTextStyle,
-      @required this.dayTextStyle,
-      @required this.dateTextStyle,
-      @required this.selectionColor,
-      this.width,
-      this.onDateSelected,
-      this.locale,
-      });
+  DateWidget({
+    @required this.date,
+    @required this.monthTextStyle,
+    @required this.dayTextStyle,
+    @required this.dateTextStyle,
+    @required this.selectionColor,
+    this.width,
+    this.onDateSelected,
+    this.locale,
+  });
 
   @override
   Widget build(BuildContext context) {

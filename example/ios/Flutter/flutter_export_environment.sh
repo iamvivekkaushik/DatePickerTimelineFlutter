@@ -5,6 +5,7 @@ export "FLUTTER_APPLICATION_PATH=/Users/vivek/StudioProjects/date_picker_timelin
 export "FLUTTER_TARGET=/Users/vivek/StudioProjects/date_picker_timeline_flutter/example/lib/main.dart"
 export "FLUTTER_BUILD_DIR=build"
 export "SYMROOT=${SOURCE_ROOT}/../build/ios"
+export "OTHER_LDFLAGS=$(inherited) -framework Flutter"
 export "FLUTTER_FRAMEWORK_DIR=/Users/vivek/development/flutter/bin/cache/artifacts/engine/ios"
 export "FLUTTER_BUILD_NAME=1.0.0"
 export "FLUTTER_BUILD_NUMBER=1"
