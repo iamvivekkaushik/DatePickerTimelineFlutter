@@ -1,3 +1,8 @@
+## [1.2.1] - 15/08/2020
+
+* Added option to activate/deactivate certain dates
+* Fixed bug where slider was going past the selected date
+
 ## [1.2.0] - 31/03/2020
 
 * This version is breaking backward compatibility

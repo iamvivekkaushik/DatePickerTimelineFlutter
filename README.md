@@ -48,16 +48,19 @@ Column(
 DatePicker(
     this.startDate, {
     Key key,
-    this.width = 60,
-    this.height = 80,
+    this.width,
+    this.height,
     this.controller,
-    this.monthTextStyle = defaultMonthTextStyle,
-    this.dayTextStyle = defaultDayTextStyle,
-    this.dateTextStyle = defaultDateTextStyle,
-    this.selectedTextColor = Colors.white,
-    this.selectionColor = AppColors.defaultSelectionColor,
+    this.monthTextStyle,
+    this.dayTextStyle,
+    this.dateTextStyle,
+    this.selectedTextColor,
+    this.selectionColor,
+    this.deactivatedColor,
     this.initialSelectedDate,
-    this.daysCount = 500,
+    this.activeDates,
+    this.inactiveDates,
+    this.daysCount,
     this.onDateChange,
     this.locale = "en_US",
 }) : super(key: key);
@@ -66,7 +69,7 @@ DatePicker(
 Author
 ------
 
-* [Vivek Kaushik](http://github.com/iamvivekkaushik/)
+* [Vivek Kaushik](https://github.com/iamvivekkaushik/)
 
 
 Contributors

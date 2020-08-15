@@ -272,8 +272,12 @@ class DatePickerController {
   /// Calculate the number of pixels that needs to be scrolled to go to the
   /// date provided in the argument
   double _calculateDateOffset(DateTime date) {
-    int offset = date.difference(_datePickerState.widget.startDate).inDays + 1;
-    print(offset);
+    final startDate = new DateTime(
+        _datePickerState.widget.startDate.year,
+        _datePickerState.widget.startDate.month,
+        _datePickerState.widget.startDate.day);
+
+    int offset = date.difference(startDate).inDays;
     return (offset * _datePickerState.widget.width) + (offset * 6);
   }
 }
