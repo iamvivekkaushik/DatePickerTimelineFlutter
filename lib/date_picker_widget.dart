@@ -144,6 +144,7 @@ class _DatePickerState extends State<DatePicker> {
 
   @override
   Widget build(BuildContext context) {
+    _currentDate = widget.initialSelectedDate;
     return Container(
       height: widget.height,
       child: ListView.builder(
