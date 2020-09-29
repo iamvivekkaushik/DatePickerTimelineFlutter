@@ -1,7 +1,7 @@
-import 'package:date_picker_timeline/date_widget.dart';
-import 'package:date_picker_timeline/extra/color.dart';
-import 'package:date_picker_timeline/extra/style.dart';
-import 'package:date_picker_timeline/gestures/tap.dart';
+import 'package:date_picker_timeline_trendway/date_widget.dart';
+import 'package:date_picker_timeline_trendway/extra/color.dart';
+import 'package:date_picker_timeline_trendway/extra/style.dart';
+import 'package:date_picker_timeline_trendway/gestures/tap.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
