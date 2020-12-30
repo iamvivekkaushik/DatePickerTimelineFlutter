@@ -29,7 +29,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   DateTime _selectedValue = DateTime.now();
 
-
   @override
   void initState() {
     super.initState();
@@ -38,12 +37,12 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.replay),
-        onPressed: () {
-          _controller.animateToSelection();
-        },
-      ),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.replay),
+          onPressed: () {
+            _controller.animateToSelection();
+          },
+        ),
         appBar: AppBar(
           title: Text(widget.title),
         ),
@@ -83,6 +82,44 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.all(40.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    RaisedButton(
+                      color: Colors.lightBlueAccent,
+                      onPressed: () {
+                        //Make sure within valid date range of DatePicker.
+                        //Skipping the check here as its example
+                        DateTime _currentDate = _controller.getCurrentDate();
+                        _controller.setCurrentDate(
+                            _currentDate.add(Duration(days: 1)));
+                        _controller.animateToSelection();
+                      },
+                      child: Text(
+                        "Set Next day",
+                        style: TextStyle(fontSize: 15),
+                      ),
+                    ),
+                    RaisedButton(
+                      color: Colors.lightBlueAccent,
+                      onPressed: () {
+                        //Make sure within valid date range of DatePicker.
+                        //Skipping the check here as its example
+                        DateTime _currentDate = _controller.getCurrentDate();
+                        _controller.setCurrentDate(
+                            _currentDate.subtract(Duration(days: 1)));
+                        _controller.animateToSelection();
+                      },
+                      child: Text(
+                        "Set Previous day",
+                        style: TextStyle(fontSize: 15),
+                      ),
+                    ),
+                  ],
+                ),
+              )
             ],
           ),
         ));

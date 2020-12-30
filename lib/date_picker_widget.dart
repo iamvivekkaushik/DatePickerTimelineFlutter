@@ -142,6 +142,12 @@ class _DatePickerState extends State<DatePicker> {
     }
   }
 
+  void setCurrentDate(DateTime date) {
+    setState(() {
+      _currentDate = date;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -191,13 +197,19 @@ class _DatePickerState extends State<DatePicker> {
             date: date,
             monthTextStyle: isDeactivated
                 ? deactivatedMonthStyle
-                : isSelected ? selectedMonthStyle : widget.monthTextStyle,
+                : isSelected
+                    ? selectedMonthStyle
+                    : widget.monthTextStyle,
             dateTextStyle: isDeactivated
                 ? deactivatedDateStyle
-                : isSelected ? selectedDateStyle : widget.dateTextStyle,
+                : isSelected
+                    ? selectedDateStyle
+                    : widget.dateTextStyle,
             dayTextStyle: isDeactivated
                 ? deactivatedDayStyle
-                : isSelected ? selectedDayStyle : widget.dayTextStyle,
+                : isSelected
+                    ? selectedDayStyle
+                    : widget.dayTextStyle,
             width: widget.width,
             locale: widget.locale,
             selectionColor:
@@ -207,12 +219,10 @@ class _DatePickerState extends State<DatePicker> {
               if (isDeactivated) return;
 
               // A date is selected
-              if (widget.onDateChange != null ) {
+              if (widget.onDateChange != null) {
                 widget.onDateChange(selectedDate);
+                setCurrentDate(selectedDate);
               }
-              setState(() {
-                _currentDate = selectedDate;
-              });
             },
           );
         },
@@ -234,6 +244,24 @@ class DatePickerController {
 
   void setDatePickerState(_DatePickerState state) {
     _datePickerState = state;
+  }
+
+  void setCurrentDate(DateTime date) {
+    assert(_datePickerState != null,
+        'DatePickerController is not attached to any DatePicker View.');
+
+    //Allows external widgets to set date of DatePicker.
+    //Propersolution would be to implement standard state management.
+    _datePickerState.setCurrentDate(date);
+  }
+
+  DateTime getCurrentDate() {
+    assert(_datePickerState != null,
+        'DatePickerController is not attached to any DatePicker View.');
+
+    //Allows external widgets to get date of DatePicker
+    //More propersolution would be to implement standard state management.
+    return _datePickerState._currentDate;
   }
 
   void jumpToSelection() {
