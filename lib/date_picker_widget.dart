@@ -25,8 +25,16 @@ class DatePicker extends StatefulWidget {
   /// Background color for the selector
   final Color selectionColor;
 
-  /// Text Color for the deactivated dates
+  /// TextStyle for the deactivated dates
   final Color deactivatedColor;
+
+    /// Background Color for the deactivated dates
+  final Color deactivatedBackgroundColor;
+
+  
+  /// Text Color for the deactivated dates
+  final TextStyle deactivatedStyle;
+
 
   /// TextStyle for Month Value
   final TextStyle monthTextStyle;
@@ -68,8 +76,10 @@ class DatePicker extends StatefulWidget {
     this.dayTextStyle = defaultDayTextStyle,
     this.dateTextStyle = defaultDateTextStyle,
     this.selectedTextColor = Colors.white,
+    this.deactivatedBackgroundColor = Colors.transparent,
     this.selectionColor = AppColors.defaultSelectionColor,
     this.deactivatedColor = AppColors.defaultDeactivatedColor,
+    this.deactivatedStyle=defaultDeactiveDateTextStyle,
     this.initialSelectedDate,
     this.activeDates,
     this.inactiveDates,
@@ -117,11 +127,11 @@ class _DatePickerState extends State<DatePicker> {
         createTextStyle(widget.dayTextStyle, widget.selectedTextColor);
 
     this.deactivatedDateStyle =
-        createTextStyle(widget.dateTextStyle, widget.deactivatedColor);
+        createTextStyle(widget.deactivatedStyle, widget.deactivatedColor);
     this.deactivatedMonthStyle =
-        createTextStyle(widget.monthTextStyle, widget.deactivatedColor);
+        createTextStyle(widget.deactivatedStyle, widget.deactivatedColor);
     this.deactivatedDayStyle =
-        createTextStyle(widget.dayTextStyle, widget.deactivatedColor);
+        createTextStyle(widget.deactivatedStyle, widget.deactivatedColor);
 
     super.initState();
   }
@@ -201,7 +211,7 @@ class _DatePickerState extends State<DatePicker> {
             width: widget.width,
             locale: widget.locale,
             selectionColor:
-                isSelected ? widget.selectionColor : Colors.transparent,
+                isSelected ?  widget.selectionColor : isDeactivated?widget.deactivatedBackgroundColor : Colors.transparent,
             onDateSelected: (selectedDate) {
               // Don't notify listener if date is deactivated
               if (isDeactivated) return;
