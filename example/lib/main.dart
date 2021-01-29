@@ -70,6 +70,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   initialSelectedDate: DateTime.now(),
                   selectionColor: Colors.black,
                   selectedTextColor: Colors.white,
+                  // deactivatedStyle: TextStyle(fontWeight: FontWeight.bold),
+                  // deactivatedColor: Colors.white,
+                  // deactivatedBackgroundColor :Colors.green,
+                  
                   inactiveDates: [
                     DateTime.now().add(Duration(days: 3)),
                     DateTime.now().add(Duration(days: 4)),

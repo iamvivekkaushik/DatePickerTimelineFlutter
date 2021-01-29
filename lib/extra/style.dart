@@ -19,3 +19,9 @@ const TextStyle defaultDayTextStyle = TextStyle(
   fontSize: Dimen.dayTextSize,
   fontWeight: FontWeight.w500,
 );
+
+const TextStyle defaultDeactiveDateTextStyle = TextStyle(
+  color: AppColors.defaultDayColor,
+  fontSize: Dimen.dayTextSize,
+  fontWeight: FontWeight.w500,
+);
