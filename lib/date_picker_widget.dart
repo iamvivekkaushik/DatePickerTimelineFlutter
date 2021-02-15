@@ -236,6 +236,10 @@ class DatePickerController {
     _datePickerState = state;
   }
 
+  void setPickedDate(DateTime date) {
+    _datePickerState._currentDate = date;
+  }
+
   void jumpToSelection() {
     assert(_datePickerState != null,
         'DatePickerController is not attached to any DatePicker View.');
