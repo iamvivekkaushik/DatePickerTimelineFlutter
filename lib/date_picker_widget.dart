@@ -17,7 +17,7 @@ class DatePicker extends StatefulWidget {
   final double height;
 
   /// DatePicker Controller
-  final DatePickerController controller;
+  final DatePickerController? controller;
 
   /// Text color for the selected Date
   final Color selectedTextColor;
@@ -38,18 +38,18 @@ class DatePicker extends StatefulWidget {
   final TextStyle dateTextStyle;
 
   /// Current Selected Date
-  final DateTime initialSelectedDate;
+  final DateTime? initialSelectedDate;
 
   /// Contains the list of inactive dates.
   /// All the dates defined in this List will be deactivated
-  final List<DateTime> inactiveDates;
+  final List<DateTime>? inactiveDates;
 
   /// Contains the list of active dates.
   /// Only the dates in this list will be activated.
-  final List<DateTime> activeDates;
+  final List<DateTime>? activeDates;
 
   /// Callback function for when a different date is selected
-  final DateChangeListener onDateChange;
+  final DateChangeListener? onDateChange;
 
   /// Max limit up to which the dates are shown.
   /// Days are counted from the startDate
@@ -60,7 +60,7 @@ class DatePicker extends StatefulWidget {
 
   DatePicker(
     this.startDate, {
-    Key key,
+    Key? key,
     this.width = 60,
     this.height = 80,
     this.controller,
@@ -86,17 +86,17 @@ class DatePicker extends StatefulWidget {
 }
 
 class _DatePickerState extends State<DatePicker> {
-  DateTime _currentDate;
+  DateTime? _currentDate;
 
   ScrollController _controller = ScrollController();
 
-  TextStyle selectedDateStyle;
-  TextStyle selectedMonthStyle;
-  TextStyle selectedDayStyle;
+  TextStyle? selectedDateStyle;
+  TextStyle? selectedMonthStyle;
+  TextStyle? selectedDayStyle;
 
-  TextStyle deactivatedDateStyle;
-  TextStyle deactivatedMonthStyle;
-  TextStyle deactivatedDayStyle;
+  TextStyle? deactivatedDateStyle;
+  TextStyle? deactivatedMonthStyle;
+  TextStyle? deactivatedDayStyle;
 
   @override
   void initState() {
@@ -106,7 +106,7 @@ class _DatePickerState extends State<DatePicker> {
     _currentDate = widget.initialSelectedDate;
 
     if (widget.controller != null) {
-      widget.controller.setDatePickerState(this);
+      widget.controller!.setDatePickerState(this);
     }
 
     this.selectedDateStyle =
@@ -128,7 +128,7 @@ class _DatePickerState extends State<DatePicker> {
 
   /// This will return a text style for the Selected date Text Values
   /// the only change will be the color provided
-  TextStyle createTextStyle(TextStyle style, Color color) {
+  TextStyle createTextStyle(TextStyle style, Color? color) {
     if (color != null) {
       return TextStyle(
         color: color,
@@ -162,7 +162,7 @@ class _DatePickerState extends State<DatePicker> {
           // check if this date needs to be deactivated for only DeactivatedDates
           if (widget.inactiveDates != null) {
 //            print("Inside Inactive dates.");
-            for (DateTime inactiveDate in widget.inactiveDates) {
+            for (DateTime inactiveDate in widget.inactiveDates!) {
               if (_compareDate(date, inactiveDate)) {
                 isDeactivated = true;
                 break;
@@ -173,7 +173,7 @@ class _DatePickerState extends State<DatePicker> {
           // check if this date needs to be deactivated for only ActivatedDates
           if (widget.activeDates != null) {
             isDeactivated = true;
-            for (DateTime activateDate in widget.activeDates) {
+            for (DateTime activateDate in widget.activeDates!) {
               // Compare the date if it is in the
               if (_compareDate(date, activateDate)) {
                 isDeactivated = false;
@@ -184,20 +184,26 @@ class _DatePickerState extends State<DatePicker> {
 
           // Check if this date is the one that is currently selected
           bool isSelected =
-              _currentDate != null ? _compareDate(date, _currentDate) : false;
+              _currentDate != null ? _compareDate(date, _currentDate!) : false;
 
           // Return the Date Widget
           return DateWidget(
             date: date,
             monthTextStyle: isDeactivated
                 ? deactivatedMonthStyle
-                : isSelected ? selectedMonthStyle : widget.monthTextStyle,
+                : isSelected
+                    ? selectedMonthStyle
+                    : widget.monthTextStyle,
             dateTextStyle: isDeactivated
                 ? deactivatedDateStyle
-                : isSelected ? selectedDateStyle : widget.dateTextStyle,
+                : isSelected
+                    ? selectedDateStyle
+                    : widget.dateTextStyle,
             dayTextStyle: isDeactivated
                 ? deactivatedDayStyle
-                : isSelected ? selectedDayStyle : widget.dayTextStyle,
+                : isSelected
+                    ? selectedDayStyle
+                    : widget.dayTextStyle,
             width: widget.width,
             locale: widget.locale,
             selectionColor:
@@ -207,8 +213,8 @@ class _DatePickerState extends State<DatePicker> {
               if (isDeactivated) return;
 
               // A date is selected
-              if (widget.onDateChange != null ) {
-                widget.onDateChange(selectedDate);
+              if (widget.onDateChange != null) {
+                widget.onDateChange!(selectedDate);
               }
               setState(() {
                 _currentDate = selectedDate;
@@ -230,7 +236,7 @@ class _DatePickerState extends State<DatePicker> {
 }
 
 class DatePickerController {
-  _DatePickerState _datePickerState;
+  _DatePickerState? _datePickerState;
 
   void setDatePickerState(_DatePickerState state) {
     _datePickerState = state;
@@ -241,8 +247,8 @@ class DatePickerController {
         'DatePickerController is not attached to any DatePicker View.');
 
     // jump to the current Date
-    _datePickerState._controller
-        .jumpTo(_calculateDateOffset(_datePickerState._currentDate));
+    _datePickerState!._controller
+        .jumpTo(_calculateDateOffset(_datePickerState!._currentDate!));
   }
 
   /// This function will animate the Timeline to the currently selected Date
@@ -252,8 +258,8 @@ class DatePickerController {
         'DatePickerController is not attached to any DatePicker View.');
 
     // animate to the current date
-    _datePickerState._controller.animateTo(
-        _calculateDateOffset(_datePickerState._currentDate),
+    _datePickerState!._controller.animateTo(
+        _calculateDateOffset(_datePickerState!._currentDate!),
         duration: duration,
         curve: curve);
   }
@@ -265,7 +271,7 @@ class DatePickerController {
     assert(_datePickerState != null,
         'DatePickerController is not attached to any DatePicker View.');
 
-    _datePickerState._controller.animateTo(_calculateDateOffset(date),
+    _datePickerState!._controller.animateTo(_calculateDateOffset(date),
         duration: duration, curve: curve);
   }
 
@@ -273,11 +279,11 @@ class DatePickerController {
   /// date provided in the argument
   double _calculateDateOffset(DateTime date) {
     final startDate = new DateTime(
-        _datePickerState.widget.startDate.year,
-        _datePickerState.widget.startDate.month,
-        _datePickerState.widget.startDate.day);
+        _datePickerState!.widget.startDate.year,
+        _datePickerState!.widget.startDate.month,
+        _datePickerState!.widget.startDate.day);
 
     int offset = date.difference(startDate).inDays;
-    return (offset * _datePickerState.widget.width) + (offset * 6);
+    return (offset * _datePickerState!.widget.width) + (offset * 6);
   }
 }
