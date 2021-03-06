@@ -1,3 +1,7 @@
+## [1.2.3] - 06/03/2021
+
+* Migrated to Null Safety
+
 ## [1.2.1] - 15/08/2020
 
 * Added option to activate/deactivate certain dates
