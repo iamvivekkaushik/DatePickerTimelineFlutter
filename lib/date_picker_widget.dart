@@ -107,9 +107,7 @@ class _DatePickerState extends State<DatePicker> {
     // Set initial Values
     _currentDate = widget.initialSelectedDate;
 
-    if (widget.controller != null) {
-      widget.controller!.setDatePickerState(this);
-    }
+    widget.controller?.setDatePickerState(this);
 
     this.selectedDateStyle =
       widget.dateTextStyle.copyWith(color: widget.selectedTextColor);
@@ -199,9 +197,8 @@ class _DatePickerState extends State<DatePicker> {
               if (isDeactivated) return;
 
               // A date is selected
-              if (widget.onDateChange != null) {
-                widget.onDateChange!(selectedDate);
-              }
+              widget.onDateChange?.call(selectedDate);
+
               setState(() {
                 _currentDate = selectedDate;
               });

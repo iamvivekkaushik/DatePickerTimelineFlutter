@@ -55,11 +55,7 @@ class DateWidget extends StatelessWidget {
         ),
       ),
       onTap: () {
-        // Check if onDateSelected is not null
-        if (onDateSelected != null) {
-          // Call the onDateSelected Function
-          onDateSelected!(this.date);
-        }
+        onDateSelected?.call(this.date);
       },
     );
   }
