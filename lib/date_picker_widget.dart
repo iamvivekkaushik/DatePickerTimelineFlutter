@@ -145,9 +145,8 @@ class _DatePickerState extends State<DatePicker> {
 
           // check if this date needs to be deactivated for only DeactivatedDates
           if (widget.inactiveDates != null) {
-//            print("Inside Inactive dates.");
             for (DateTime inactiveDate in widget.inactiveDates!) {
-              if (_compareDate(date, inactiveDate)) {
+              if (DateUtils.isSameDay(date, inactiveDate)) {
                 isDeactivated = true;
                 break;
               }
@@ -158,8 +157,7 @@ class _DatePickerState extends State<DatePicker> {
           if (widget.activeDates != null) {
             isDeactivated = true;
             for (DateTime activateDate in widget.activeDates!) {
-              // Compare the date if it is in the
-              if (_compareDate(date, activateDate)) {
+              if (DateUtils.isSameDay(date, activateDate)) {
                 isDeactivated = false;
                 break;
               }
@@ -167,8 +165,9 @@ class _DatePickerState extends State<DatePicker> {
           }
 
           // Check if this date is the one that is currently selected
-          bool isSelected =
-              _currentDate != null ? _compareDate(date, _currentDate!) : false;
+          bool isSelected = _currentDate != null
+              ? DateUtils.isSameDay(date, _currentDate!)
+              : false;
 
           // Return the Date Widget
           return DateWidget(
@@ -207,14 +206,6 @@ class _DatePickerState extends State<DatePicker> {
         },
       ),
     );
-  }
-
-  /// Helper function to compare two dates
-  /// Returns True if both dates are the same
-  bool _compareDate(DateTime date1, DateTime date2) {
-    return date1.day == date2.day &&
-        date1.month == date2.month &&
-        date1.year == date2.year;
   }
 }
 
