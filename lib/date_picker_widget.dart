@@ -250,7 +250,7 @@ class DatePickerController {
         curve: curve);
   }
 
-  /// This function will animate to any date that is passed as a parameter
+  /// This function will animate to any date that is passed as an argument
   /// In case a date is out of range nothing will happen
   void animateToDate(DateTime date,
       {duration = const Duration(milliseconds: 500), curve = Curves.linear}) {
@@ -259,6 +259,24 @@ class DatePickerController {
 
     _datePickerState!._controller.animateTo(_calculateDateOffset(date),
         duration: duration, curve: curve);
+  }
+
+  /// This function will animate to any date that is passed as an argument
+  /// this will also set that date as the current selected date
+  void setDateAndAnimate(DateTime date,
+      {duration = const Duration(milliseconds: 500), curve = Curves.linear}) {
+    assert(_datePickerState != null,
+    'DatePickerController is not attached to any DatePicker View.');
+
+    _datePickerState!._controller.animateTo(_calculateDateOffset(date),
+        duration: duration, curve: curve);
+
+    if (date.compareTo(_datePickerState!.widget.startDate) >= 0 &&
+    date.compareTo(_datePickerState!.widget.startDate.add(
+        Duration(days: _datePickerState!.widget.daysCount))) <= 0) {
+      // date is in the range
+      _datePickerState!._currentDate = date;
+    }
   }
 
   /// Calculate the number of pixels that needs to be scrolled to go to the
