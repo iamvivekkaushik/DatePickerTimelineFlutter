@@ -1,11 +1,11 @@
-
-
 import 'package:date_picker_timeline/date_widget.dart';
 import 'package:date_picker_timeline/extra/color.dart';
 import 'package:date_picker_timeline/extra/style.dart';
 import 'package:date_picker_timeline/gestures/tap.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
+
+enum DateTimeType { Month, Date, WeekDay }
 
 class DatePicker extends StatefulWidget {
   /// Start Date in case user wants to show past dates
@@ -60,6 +60,12 @@ class DatePicker extends StatefulWidget {
   /// Locale for the calendar default: en_us
   final String locale;
 
+  /// Sequence of Date shown to the user - from top to bottom
+  final List<DateTimeType> dateSequence;
+
+  /// Shape of selected date
+  final BoxShape selectedDateShape;
+
   DatePicker(
     this.startDate, {
     Key? key,
@@ -78,7 +84,10 @@ class DatePicker extends StatefulWidget {
     this.daysCount = 500,
     this.onDateChange,
     this.locale = "en_US",
-  }) : assert(
+    this.dateSequence = const [DateTimeType.Month, DateTimeType.Date, DateTimeType.WeekDay],
+    this.selectedDateShape = BoxShape.rectangle,
+  })  : assert(dateSequence.isNotEmpty, "Date sequence can't be empty!"),
+        assert(
             activeDates == null || inactiveDates == null,
             "Can't "
             "provide both activated and deactivated dates List at the same time.");
@@ -206,6 +215,8 @@ class _DatePickerState extends State<DatePicker> {
                 _currentDate = selectedDate;
               });
             },
+            dateSequence: widget.dateSequence,
+            shape: widget.selectedDateShape,
           );
         },
       ),
