@@ -86,7 +86,8 @@ class DatePicker extends StatefulWidget {
     this.locale = "en_US",
     this.dateSequence = const [DateTimeType.Month, DateTimeType.Date, DateTimeType.WeekDay],
     this.selectedDateShape = BoxShape.rectangle,
-  }) : assert(
+  })  : assert(dateSequence.isNotEmpty, "Date sequence can't be empty!"),
+        assert(
             activeDates == null || inactiveDates == null,
             "Can't "
             "provide both activated and deactivated dates List at the same time.");
