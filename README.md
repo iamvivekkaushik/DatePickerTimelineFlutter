@@ -63,6 +63,8 @@ DatePicker(
     this.daysCount,
     this.onDateChange,
     this.locale = "en_US",
+    this.dateSequence = const [TimeType.Month, TimeType.Date, TimeType.WeekDay],
+    this.selectedDateShape = BoxShape.rectangle,
 }) : super(key: key);
 ```
 
