@@ -182,42 +182,42 @@ class _DatePickerState extends State<DatePicker> {
           // Return the Date Widget
           return 
 //===================== PROPOSED: Wrap in visibility widget to hide it if deactivated =========================//
-            Visibility(
-            visible: widget.hideDeactivatedDates,
-            DateWidget(
-            date: date,
-            monthTextStyle: isDeactivated
-                ? deactivatedMonthStyle
-                : isSelected
-                    ? selectedMonthStyle
-                    : widget.monthTextStyle,
-            dateTextStyle: isDeactivated
-                ? deactivatedDateStyle
-                : isSelected
-                    ? selectedDateStyle
-                    : widget.dateTextStyle,
-            dayTextStyle: isDeactivated
-                ? deactivatedDayStyle
-                : isSelected
-                    ? selectedDayStyle
-                    : widget.dayTextStyle,
-            width: widget.width,
-            locale: widget.locale,
-            selectionColor:
-                isSelected ? widget.selectionColor : Colors.transparent,
-            onDateSelected: (selectedDate) {
-              // Don't notify listener if date is deactivated
-              if (isDeactivated) return;
+             Visibility(
+                  child: DateWidget(
+                    date: date,
+                    monthTextStyle: isDeactivated
+                        ? deactivatedMonthStyle
+                        : isSelected
+                            ? selectedMonthStyle
+                            : widget.monthTextStyle,
+                    dateTextStyle: isDeactivated
+                        ? deactivatedDateStyle
+                        : isSelected
+                            ? selectedDateStyle
+                            : widget.dateTextStyle,
+                    dayTextStyle: isDeactivated
+                        ? deactivatedDayStyle
+                        : isSelected
+                            ? selectedDayStyle
+                            : widget.dayTextStyle,
+                    width: widget.width,
+                    locale: widget.locale,
+                    selectionColor:
+                        isSelected ? widget.selectionColor : Colors.transparent,
+                    onDateSelected: (selectedDate) {
+                      // Don't notify listener if date is deactivated
+                      if (isDeactivated) return;
 
-              // A date is selected
-              if (widget.onDateChange != null) {
-                widget.onDateChange!(selectedDate);
-              }
-              setState(() {
-                _currentDate = selectedDate;
-              });
-            },
-          );)
+                      // A date is selected
+                      if (widget.onDateChange != null) {
+                        widget.onDateChange!(selectedDate);
+                      }
+                      setState(() {
+                        _currentDate = selectedDate;
+                      });
+                    },
+                  ),
+                  visible: widget.hideDeactivatedDates);
         },
       ),
     );
