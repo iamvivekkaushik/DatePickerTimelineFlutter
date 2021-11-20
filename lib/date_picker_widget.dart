@@ -59,6 +59,11 @@ class DatePicker extends StatefulWidget {
 
   /// Locale for the calendar default: en_us
   final String locale;
+  //===================== PROPOSED =======================//
+  /// If providing Active or Deactivated Dates, 
+  // Allow hiding the widgets so there are no spaces in between active dates
+  final bool hideDeactivatedDates;
+
 
   DatePicker(
     this.startDate, {
@@ -78,6 +83,8 @@ class DatePicker extends StatefulWidget {
     this.daysCount = 500,
     this.onDateChange,
     this.locale = "en_US",
+//===================== PROPOSED =======================//
+    this.hideDeactivatedDates = false,
   }) : assert(
             activeDates == null || inactiveDates == null,
             "Can't "
@@ -173,7 +180,11 @@ class _DatePickerState extends State<DatePicker> {
               _currentDate != null ? _compareDate(date, _currentDate!) : false;
 
           // Return the Date Widget
-          return DateWidget(
+          return 
+//===================== PROPOSED: Wrap in visibility widget to hide it if deactivated =========================//
+            Visibility(
+            visible: widget.hideDeactivatedDates,
+            DateWidget(
             date: date,
             monthTextStyle: isDeactivated
                 ? deactivatedMonthStyle
@@ -204,7 +215,7 @@ class _DatePickerState extends State<DatePicker> {
               }
               setState(() {
                 _currentDate = selectedDate;
-              });
+              }));
             },
           );
         },
