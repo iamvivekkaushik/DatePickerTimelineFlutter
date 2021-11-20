@@ -215,9 +215,9 @@ class _DatePickerState extends State<DatePicker> {
               }
               setState(() {
                 _currentDate = selectedDate;
-              }));
+              });
             },
-          );
+          );)
         },
       ),
     );
