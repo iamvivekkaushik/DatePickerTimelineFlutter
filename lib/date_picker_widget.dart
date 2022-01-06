@@ -217,7 +217,7 @@ class _DatePickerState extends State<DatePicker> {
                       });
                     },
                   ),
-                  visible: hideDeactivatedDates == true && isDeactivated == true ? false : true );
+                  visible: widget.hideDeactivatedDates == true && isDeactivated == true ? false : true );
         },
       ),
     );
