@@ -59,6 +59,9 @@ class DatePicker extends StatefulWidget {
 
   /// Locale for the calendar default: en_us
   final String locale;
+  
+  /// Show dates in reverse order or not
+  final bool reverseDays;
 
   DatePicker(
     this.startDate, {
@@ -78,6 +81,7 @@ class DatePicker extends StatefulWidget {
     this.daysCount = 500,
     this.onDateChange,
     this.locale = "en_US",
+    this.reverseDays = false,
   }) : assert(
             activeDates == null || inactiveDates == null,
             "Can't "
@@ -133,6 +137,7 @@ class _DatePickerState extends State<DatePicker> {
     return Container(
       height: widget.height,
       child: ListView.builder(
+        reverse: widget.reverseDays,
         itemCount: widget.daysCount,
         scrollDirection: Axis.horizontal,
         controller: _controller,
