@@ -5,6 +5,16 @@ import 'package:date_picker_timeline/gestures/tap.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+extension _DateTimeExtension on DateTime {
+  DateTime thisDay() {
+    return DateTime(year, month, day);
+  }
+
+  bool isSameYYMMDD(DateTime other) {
+    return year == other.year && month == other.month && day == other.day;
+  }
+}
+
 class DatePicker extends StatefulWidget {
   /// Start Date in case user wants to show past dates
   /// If not provided calendar will start from the initialSelectedDate
@@ -138,11 +148,7 @@ class _DatePickerState extends State<DatePicker> {
         itemBuilder: (context, index) {
           // get the date object based on the index position
           // if widget.startDate is null then use the initialDateValue
-          DateTime date;
-          {
-            DateTime dateHelper = widget.startDate.add(Duration(days: index));
-            date = DateTime(dateHelper.year, dateHelper.month, dateHelper.day);
-          }
+          DateTime date = widget.startDate.add(Duration(days: index)).thisDay();
 
           bool isDeactivated = false;
 
@@ -150,7 +156,7 @@ class _DatePickerState extends State<DatePicker> {
           if (widget.inactiveDates != null) {
 //            print("Inside Inactive dates.");
             for (DateTime inactiveDate in widget.inactiveDates!) {
-              if (_compareDate(date, inactiveDate)) {
+              if (date.isSameYYMMDD(inactiveDate)) {
                 isDeactivated = true;
                 break;
               }
@@ -162,7 +168,7 @@ class _DatePickerState extends State<DatePicker> {
             isDeactivated = true;
             for (DateTime activateDate in widget.activeDates!) {
               // Compare the date if it is in the
-              if (_compareDate(date, activateDate)) {
+              if (date.isSameYYMMDD(activateDate)) {
                 isDeactivated = false;
                 break;
               }
@@ -170,8 +176,7 @@ class _DatePickerState extends State<DatePicker> {
           }
 
           // Check if this date is the one that is currently selected
-          bool isSelected =
-              _currentDate != null ? _compareDate(date, _currentDate!) : false;
+          bool isSelected = _currentDate?.isSameYYMMDD(date) ?? false;
 
           // Return the Date Widget
           return DateWidget(
@@ -211,14 +216,6 @@ class _DatePickerState extends State<DatePicker> {
         },
       ),
     );
-  }
-
-  /// Helper function to compare two dates
-  /// Returns True if both dates are the same
-  bool _compareDate(DateTime date1, DateTime date2) {
-    return date1.day == date2.day &&
-        date1.month == date2.month &&
-        date1.year == date2.year;
   }
 }
 
@@ -284,10 +281,7 @@ class DatePickerController {
   /// Calculate the number of pixels that needs to be scrolled to go to the
   /// date provided in the argument
   double _calculateDateOffset(DateTime date) {
-    final startDate = DateTime(
-        _datePickerState!.widget.startDate.year,
-        _datePickerState!.widget.startDate.month,
-        _datePickerState!.widget.startDate.day);
+    final startDate = _datePickerState!.widget.startDate.thisDay();
 
     int offset = date.difference(startDate).inDays;
     return (offset * _datePickerState!.widget.width) + (offset * 6);
