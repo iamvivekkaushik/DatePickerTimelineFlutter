@@ -49,6 +49,7 @@ class DatePicker extends StatefulWidget {
 
   /// Current Selected Date
   final DateTime? /*?*/ initialSelectedDate;
+  final bool jumpToInitialSelectedDate;
 
   /// Contains the list of inactive dates.
   /// All the dates defined in this List will be deactivated
@@ -81,6 +82,7 @@ class DatePicker extends StatefulWidget {
     this.selectionColor = AppColors.defaultSelectionColor,
     this.deactivatedColor = AppColors.defaultDeactivatedColor,
     this.initialSelectedDate,
+    this.jumpToInitialSelectedDate = true,
     this.activeDates,
     this.inactiveDates,
     this.daysCount = 500,
@@ -118,6 +120,13 @@ class _DatePickerState extends State<DatePicker> {
 
     if (widget.controller != null) {
       widget.controller!._setDatePickerState(this);
+
+      if (widget.jumpToInitialSelectedDate &&
+          widget.initialSelectedDate != null) {
+        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+          widget.controller!.jumpToSelection();
+        });
+      }
     }
 
     selectedDateStyle =

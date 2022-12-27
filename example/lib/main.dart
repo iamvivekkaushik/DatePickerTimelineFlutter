@@ -73,9 +73,9 @@ class _MyHomePageState extends State<MyHomePage> {
               Text(_selectedValue.toString()),
               const Padding(padding: EdgeInsets.all(20)),
               DatePicker(
-                startDate: DateTime.now(),
+                startDate: DateTime.now().subtract(const Duration(days: 30)),
                 width: 60,
-                height: 80,
+                height: 84,
                 controller: _controller,
                 initialSelectedDate: DateTime.now(),
                 selectionColor: Colors.black,
