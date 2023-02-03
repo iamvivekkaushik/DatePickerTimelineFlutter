@@ -16,7 +16,8 @@ class DateWidget extends StatelessWidget {
   final Color selectionColor;
   final DateSelectionCallback? onDateSelected;
   final String? locale;
-
+  final bool showMonth;
+  final Widget Function(DateTime date)? builder;
   DateWidget({
     required this.date,
     required this.monthTextStyle,
@@ -24,8 +25,10 @@ class DateWidget extends StatelessWidget {
     required this.dateTextStyle,
     required this.selectionColor,
     this.width,
+    this.showMonth = false,
     this.onDateSelected,
     this.locale,
+    this.builder,
   });
 
   @override
@@ -40,18 +43,30 @@ class DateWidget extends StatelessWidget {
         ),
         child: Padding(
           padding: EdgeInsets.all(8),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Text(new DateFormat("MMM", locale).format(date).toUpperCase(), // Month
-                  style: monthTextStyle),
-              Text(date.day.toString(), // Date
-                  style: dateTextStyle),
-              Text(new DateFormat("E", locale).format(date).toUpperCase(), // WeekDay
-                  style: dayTextStyle)
-            ],
-          ),
+          child: builder as Widget? ??
+              Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  if (showMonth)
+                    Text(
+                      new DateFormat("MMM", locale)
+                          .format(date)
+                          .toUpperCase(), // Month
+                      style: monthTextStyle,
+                    ),
+                  Text(
+                    new DateFormat("E", locale)
+                        .format(date)
+                        .toUpperCase(), // WeekDay
+                    style: dayTextStyle,
+                  ),
+                  Text(
+                    date.day.toString(), // Date
+                    style: dateTextStyle,
+                  ),
+                ],
+              ),
         ),
       ),
       onTap: () {
