@@ -119,6 +119,11 @@ class _DatePickerState extends State<DatePicker> {
 
     if (widget.controller != null) {
       widget.controller!.setDatePickerState(this);
+      if (widget.initialSelectedDate != null) {
+        _controller = ScrollController(
+            initialScrollOffset:
+                _calculateDateOffset(widget.initialSelectedDate!));
+      }
     }
 
     this.selectedDateStyle =
@@ -134,9 +139,7 @@ class _DatePickerState extends State<DatePicker> {
         widget.monthTextStyle.copyWith(color: widget.deactivatedColor);
     this.deactivatedDayStyle =
         widget.dayTextStyle.copyWith(color: widget.deactivatedColor);
-    if (widget.initialSelectedDate != null && widget.controller != null) {
-      _controller.jumpTo(_calculateDateOffset(widget.initialSelectedDate!));
-    }
+
     super.initState();
   }
 
