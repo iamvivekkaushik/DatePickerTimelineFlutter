@@ -67,6 +67,9 @@ class DatePicker extends StatefulWidget {
   ///jump to initial date
   final bool jumpToInitialDate;
 
+  /// disable old dates
+  final bool disableOldDates;
+
   DatePicker(
     this.startDate, {
     Key? key,
@@ -76,6 +79,7 @@ class DatePicker extends StatefulWidget {
     this.builder,
     this.showMonth = false,
     this.jumpToInitialDate = true,
+    this.disableOldDates = false,
     this.monthTextStyle = defaultMonthTextStyle,
     this.dayTextStyle = defaultDayTextStyle,
     this.dateTextStyle = defaultDateTextStyle,
@@ -188,6 +192,17 @@ class _DatePickerState extends State<DatePicker> {
                 isDeactivated = false;
                 break;
               }
+            }
+          }
+
+          // check if this date old to disable it
+          if (widget.disableOldDates) {
+            if (date.isBefore(
+              DateTime.now().subtract(
+                Duration(days: 1),
+              ),
+            )) {
+              isDeactivated = true;
             }
           }
 
