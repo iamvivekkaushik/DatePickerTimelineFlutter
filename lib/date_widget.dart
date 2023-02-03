@@ -12,13 +12,15 @@ import 'package:intl/intl.dart';
 class DateWidget extends StatelessWidget {
   final double? width;
   final DateTime date;
-  final TextStyle? monthTextStyle, dayTextStyle, dateTextStyle;
+  final TextStyle monthTextStyle;
+  final TextStyle dayTextStyle;
+  final TextStyle dateTextStyle;
   final Color selectionColor;
   final DateSelectionCallback? onDateSelected;
   final String? locale;
   final bool showMonth;
-
   final Widget Function(DateTime date)? builder;
+
   DateWidget({
     required this.date,
     required this.monthTextStyle,
@@ -35,17 +37,17 @@ class DateWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      child: Container(
-        width: width,
-        margin: EdgeInsets.all(3.0),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-          color: selectionColor,
-        ),
-        child: Padding(
-          padding: EdgeInsets.all(8),
-          child: builder as Widget? ??
-              Column(
+      child: builder as Widget? ??
+          Container(
+            width: width,
+            margin: EdgeInsets.all(3.0),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(8.0)),
+              color: selectionColor,
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(8),
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
@@ -68,8 +70,8 @@ class DateWidget extends StatelessWidget {
                   ),
                 ],
               ),
-        ),
-      ),
+            ),
+          ),
       onTap: () {
         // Check if onDateSelected is not null
         if (onDateSelected != null) {
