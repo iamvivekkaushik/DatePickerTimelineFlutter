@@ -17,6 +17,7 @@ class DateWidget extends StatelessWidget {
   final DateSelectionCallback? onDateSelected;
   final String? locale;
   final bool showMonth;
+
   final Widget Function(DateTime date)? builder;
   DateWidget({
     required this.date,
