@@ -119,7 +119,7 @@ class _DatePickerState extends State<DatePicker> {
 
     if (widget.controller != null) {
       widget.controller!.setDatePickerState(this);
-      if (widget.initialSelectedDate != null) {
+      if (widget.initialSelectedDate != null && widget.jumpToInitialDate) {
         _controller = ScrollController(
             initialScrollOffset:
                 _calculateDateOffset(widget.initialSelectedDate!));
