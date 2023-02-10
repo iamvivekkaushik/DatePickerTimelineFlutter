@@ -36,42 +36,53 @@ class DateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (builder != null) {
+      InkWell(
+        child: builder!(date),
+        onTap: () {
+          // Check if onDateSelected is not null
+          if (onDateSelected != null) {
+            // Call the onDateSelected Function
+            onDateSelected!(this.date);
+          }
+        },
+      );
+    }
     return InkWell(
-      child: builder as Widget? ??
-          Container(
-            width: width,
-            margin: EdgeInsets.all(3.0),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(8.0)),
-              color: selectionColor,
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(8),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  if (showMonth)
-                    Text(
-                      new DateFormat("MMM", locale)
-                          .format(date)
-                          .toUpperCase(), // Month
-                      style: monthTextStyle,
-                    ),
-                  Text(
-                    new DateFormat("E", locale)
-                        .format(date)
-                        .toUpperCase(), // WeekDay
-                    style: dayTextStyle,
-                  ),
-                  Text(
-                    date.day.toString(), // Date
-                    style: dateTextStyle,
-                  ),
-                ],
+      child: Container(
+        width: width,
+        margin: EdgeInsets.all(3.0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(8.0)),
+          color: selectionColor,
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(8),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              if (showMonth)
+                Text(
+                  new DateFormat("MMM", locale)
+                      .format(date)
+                      .toUpperCase(), // Month
+                  style: monthTextStyle,
+                ),
+              Text(
+                new DateFormat("E", locale)
+                    .format(date)
+                    .toUpperCase(), // WeekDay
+                style: dayTextStyle,
               ),
-            ),
+              Text(
+                date.day.toString(), // Date
+                style: dateTextStyle,
+              ),
+            ],
           ),
+        ),
+      ),
       onTap: () {
         // Check if onDateSelected is not null
         if (onDateSelected != null) {
