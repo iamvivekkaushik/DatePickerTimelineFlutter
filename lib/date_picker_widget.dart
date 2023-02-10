@@ -62,7 +62,7 @@ class DatePicker extends StatefulWidget {
   final bool showMonth;
 
   /// Custom Widget Builder
-  final Widget Function(DateTime date)? builder;
+  final Widget Function(DateTime date,bool isDeactivated)? builder;
 
   ///jump to initial date
   final bool jumpToInitialDate;
@@ -215,6 +215,7 @@ class _DatePickerState extends State<DatePicker> {
             date: date,
             showMonth: widget.showMonth,
             builder: widget.builder,
+            isDeactivated: isDeactivated,
             monthTextStyle: isDeactivated
                 ? deactivatedMonthStyle
                 : isSelected

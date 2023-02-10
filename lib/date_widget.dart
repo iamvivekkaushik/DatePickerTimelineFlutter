@@ -18,8 +18,9 @@ class DateWidget extends StatelessWidget {
   final Color selectionColor;
   final DateSelectionCallback? onDateSelected;
   final String? locale;
+  final bool isDeactivated;
   final bool showMonth;
-  final Widget Function(DateTime date)? builder;
+  final Widget Function(DateTime date, bool isDeactivated)? builder;
 
   DateWidget({
     required this.date,
@@ -27,6 +28,7 @@ class DateWidget extends StatelessWidget {
     required this.dayTextStyle,
     required this.dateTextStyle,
     required this.selectionColor,
+    required this.isDeactivated,
     this.width,
     this.showMonth = false,
     this.onDateSelected,
@@ -38,7 +40,7 @@ class DateWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     if (builder != null) {
       return InkWell(
-        child: builder!(date),
+        child: builder!(date, isDeactivated),
         onTap: () {
           // Check if onDateSelected is not null
           if (onDateSelected != null) {
