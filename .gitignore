@@ -30,7 +30,6 @@ example/.vscode/
 .pub-cache/
 .pub/
 build/
-
 # Android related
 **/android/**/gradle-wrapper.jar
 **/android/.gradle
