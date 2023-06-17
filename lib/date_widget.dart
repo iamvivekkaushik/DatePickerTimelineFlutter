@@ -33,13 +33,13 @@ class DateWidget extends StatelessWidget {
     return InkWell(
       child: Container(
         width: width,
-        margin: EdgeInsets.all(3.0),
+        margin: const EdgeInsets.all(3.0),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(8.0)),
+          borderRadius: const BorderRadius.all(Radius.circular(8.0)),
           color: selectionColor,
         ),
         child: Padding(
-          padding: EdgeInsets.all(8),
+          padding: const EdgeInsets.all(8),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -55,11 +55,7 @@ class DateWidget extends StatelessWidget {
         ),
       ),
       onTap: () {
-        // Check if onDateSelected is not null
-        if (onDateSelected != null) {
-          // Call the onDateSelected Function
-          onDateSelected!(this.date);
-        }
+        onDateSelected?.call(this.date);
       },
     );
   }
