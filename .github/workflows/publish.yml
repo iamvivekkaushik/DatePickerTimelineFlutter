@@ -19,13 +19,20 @@ jobs:
       # Setup Dart SDK with JWT token
       - uses: dart-lang/setup-dart@d6a63dab3335f427404425de0fbfed4686d93c4f
 
+      # Check if the version is valid
+      - name: Check Version
+        run: flutter pub run tools/publish/check_version.dart ${GITHUB_REF}
+
+      # Install Flutter
       - name: Install Flutter & Build App Bundle
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
 
+      # Get dependencies
       - name: Install Flutter Packages
         run: flutter pub get
 
+      # Publish to pub.dev
       - name: Publish to pub.dev
         run: flutter pub pub publish -f

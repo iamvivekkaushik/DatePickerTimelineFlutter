@@ -1,6 +1,6 @@
 name: date_picker_timeline
 description: Flutter Date Picker Library that provides a calendar as a horizontal timeline.
-version: 1.2.4
+version: 1.2.5
 homepage: https://github.com/iamvivekkaushik/DatePickerTimelineFlutter
 
 environment:
@@ -14,6 +14,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  yaml:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
