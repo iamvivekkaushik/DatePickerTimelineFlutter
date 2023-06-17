@@ -60,6 +60,9 @@ class DatePicker extends StatefulWidget {
   /// Locale for the calendar default: en_us
   final String locale;
 
+  /// Predefined date list
+  List<DateTime> dateList;
+
   DatePicker(
     this.startDate, {
     Key? key,
@@ -82,6 +85,26 @@ class DatePicker extends StatefulWidget {
             activeDates == null || inactiveDates == null,
             "Can't "
             "provide both activated and deactivated dates List at the same time.");
+
+
+  // Create date picker from predefined list
+  DatePicker.fromList(this.dateList, {
+    Key key,
+    this.width = 60,
+    this.height = 80,
+    this.controller,
+    this.monthTextStyle = defaultMonthTextStyle,
+    this.dayTextStyle = defaultDayTextStyle,
+    this.dateTextStyle = defaultDateTextStyle,
+    this.selectedTextColor = Colors.white,
+    this.selectionColor = AppColors.defaultSelectionColor,
+    this.initialSelectedDate,
+    this.onDateChange,
+    this.locale = "en_US",
+  }) : assert(dateList != null && dateList.length > 0),
+        this.startDate = dateList[0],
+        this.daysCount = dateList.length,
+        super(key: key);
 
   @override
   State<StatefulWidget> createState() => new _DatePickerState();
@@ -140,8 +163,13 @@ class _DatePickerState extends State<DatePicker> {
           // get the date object based on the index position
           // if widget.startDate is null then use the initialDateValue
           DateTime date;
-          DateTime _date = widget.startDate.add(Duration(days: index));
-          date = new DateTime(_date.year, _date.month, _date.day);
+
+          if(widget.dateList != null && widget.dateList.length > 0) {
+            date = widget.dateList[index];
+          } else {
+            DateTime _date = widget.startDate.add(Duration(days: index));
+            date = new DateTime(_date.year, _date.month, _date.day);
+          }
 
           bool isDeactivated = false;
 

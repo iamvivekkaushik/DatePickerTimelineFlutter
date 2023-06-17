@@ -83,6 +83,36 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                 ),
               ),
+              Padding(
+                padding: EdgeInsets.all(30),
+              ),
+              Text("DatePicker from predefined list:"),
+              Padding(
+                padding: EdgeInsets.all(20),
+              ),
+              Container(
+                child: DatePicker.fromList(
+                  [
+                    DateTime(2020, 1, 1),
+                    DateTime(2020, 2, 1),
+                    DateTime(2020, 3, 1),
+                    DateTime(2020, 4, 1),
+                    DateTime(2020, 5, 1),
+                    DateTime(2020, 6, 1),
+                    DateTime(2020, 7, 1),
+                    DateTime(2020, 8, 1),
+                    DateTime(2020, 9, 1),
+                    DateTime(2020, 10, 1),
+                    DateTime(2020, 11, 1),
+                    DateTime(2020, 12, 1),
+                  ],
+                  width: 60,
+                  height: 80,
+                  initialSelectedDate: DateTime(2020, 4, 1),
+                  selectionColor: Colors.black,
+                  selectedTextColor: Colors.white,
+                ),
+              ),
             ],
           ),
         ));
