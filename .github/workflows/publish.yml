@@ -8,18 +8,16 @@ on:
 # Publish using the reusable workflow from dart-lang.
 jobs:
   publish:
+    name: Publish to pub.dev
+    permissions:
+      id-token: write # This is required for requesting the JWT
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout App Repo
         uses: actions/checkout@v3
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '2.7.2'
-
-      - name: Update version in Pubspec
-        run: ruby update_version.rb
+      # Setup Dart SDK with JWT token
+      - uses: dart-lang/setup-dart@d6a63dab3335f427404425de0fbfed4686d93c4f
 
       - name: Install Flutter & Build App Bundle
         uses: subosito/flutter-action@v2
