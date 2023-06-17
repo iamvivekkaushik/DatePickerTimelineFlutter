@@ -1,3 +1,7 @@
+## [1.2.4] - 17/06/2023
+
+* Updated Intl
+
 ## [1.2.3] - 06/03/2021
 
 * Migrated to Null Safety
