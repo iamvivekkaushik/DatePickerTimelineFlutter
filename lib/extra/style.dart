@@ -1,6 +1,12 @@
 import 'package:date_picker_timeline/extra/color.dart';
-import 'package:flutter/material.dart';
 import 'package:date_picker_timeline/extra/dimen.dart';
+import 'package:flutter/material.dart';
+
+const TextStyle defaultYearTextStyle = TextStyle(
+  color: AppColors.defaultYearColor,
+  fontSize: Dimen.yearTextSize,
+  fontWeight: FontWeight.w500,
+);
 
 const TextStyle defaultMonthTextStyle = TextStyle(
   color: AppColors.defaultMonthColor,
@@ -18,4 +24,10 @@ const TextStyle defaultDayTextStyle = TextStyle(
   color: AppColors.defaultDayColor,
   fontSize: Dimen.dayTextSize,
   fontWeight: FontWeight.w500,
+);
+
+final TextStyle defaultSelectedMonthTextStyle = const TextStyle(
+  color: AppColors.defaultSelectedMonthColor,
+  fontSize: Dimen.selectedMonthTextSize,
+  fontWeight: FontWeight.bold,
 );

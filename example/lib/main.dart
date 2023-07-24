@@ -27,23 +27,36 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   DatePickerController _controller = DatePickerController();
 
-  DateTime _selectedValue = DateTime.now();
-
+  DateTime _selectedDayValue = DateTime.now();
+  DateTime _selectedMonthValue = DateTime.now();
 
   @override
   void initState() {
     super.initState();
   }
 
+  // function to get total days in a month
+  int daysInMonth(DateTime date) {
+    var firstDayThisMonth = firstDayOfMonth(date);
+    var firstDayNextMonth = new DateTime(date.year, date.month + 1, 1);
+
+    return firstDayNextMonth.difference(firstDayThisMonth).inDays;
+  }
+
+  // function to get the first day of the month
+  DateTime firstDayOfMonth(DateTime date) {
+    return DateTime(date.year, date.month, 1);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.replay),
-        onPressed: () {
-          _controller.animateToSelection();
-        },
-      ),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.replay),
+          onPressed: () {
+            _controller.animateToSelection();
+          },
+        ),
         appBar: AppBar(
           title: Text(widget.title!),
         ),
@@ -53,23 +66,47 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Text("You Selected:"),
+              Text("You Selected Month:"),
               Padding(
                 padding: EdgeInsets.all(10),
               ),
-              Text(_selectedValue.toString()),
+              Text(_selectedMonthValue.toString()),
+              Padding(
+                padding: EdgeInsets.all(20),
+              ),
+              Text("You Selected Day:"),
+              Padding(
+                padding: EdgeInsets.all(10),
+              ),
+              Text(_selectedDayValue.toString()),
               Padding(
                 padding: EdgeInsets.all(20),
               ),
               Container(
+                child: MonthPicker(
+                  startDate: DateTime.now(),
+                  height: 80,
+                  initialSelectedDate: _selectedMonthValue,
+                  selectionColor: Colors.black,
+                  selectedTextColor: Colors.white,
+                  onDateChange: (date) {
+                    // New date selected
+                    setState(() {
+                      _selectedMonthValue = date;
+                    });
+                  },
+                ),
+              ),
+              Container(
                 child: DatePicker(
-                  DateTime.now(),
+                  firstDayOfMonth(_selectedMonthValue),
                   width: 60,
                   height: 80,
                   controller: _controller,
-                  initialSelectedDate: DateTime.now(),
+                  initialSelectedDate: _selectedDayValue,
                   selectionColor: Colors.black,
                   selectedTextColor: Colors.white,
+                  daysCount: daysInMonth(_selectedMonthValue),
                   inactiveDates: [
                     DateTime.now().add(Duration(days: 3)),
                     DateTime.now().add(Duration(days: 4)),
@@ -78,11 +115,26 @@ class _MyHomePageState extends State<MyHomePage> {
                   onDateChange: (date) {
                     // New date selected
                     setState(() {
-                      _selectedValue = date;
+                      _selectedDayValue = date;
                     });
                   },
                 ),
               ),
+              Container(
+                child: YearPickerTimeline(
+                  startDate: DateTime.now(),
+                  height: 80,
+                  initialSelectedDate: _selectedMonthValue,
+                  selectionColor: Colors.black,
+                  selectedTextColor: Colors.white,
+                  onDateChange: (date) {
+                    // New date selected
+                    setState(() {
+                      _selectedMonthValue = date;
+                    });
+                  },
+                ),
+              )
             ],
           ),
         ));
