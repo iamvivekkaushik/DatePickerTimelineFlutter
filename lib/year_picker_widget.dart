@@ -60,7 +60,6 @@ class _YearPickerTimelineState extends State<YearPickerTimeline> {
 
     selectedYearStyle = widget.yearTextStyle!
         .copyWith(color: widget.selectedTextColor, fontWeight: FontWeight.bold);
-    print(selectedYearStyle);
 
     if (widget.controller != null) {
       widget.controller!.setMonthTimelineState(this);
