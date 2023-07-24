@@ -120,6 +120,21 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                 ),
               ),
+              Container(
+                child: YearPickerTimeline(
+                  startDate: DateTime.now(),
+                  height: 80,
+                  initialSelectedDate: _selectedMonthValue,
+                  selectionColor: Colors.black,
+                  selectedTextColor: Colors.white,
+                  onDateChange: (date) {
+                    // New date selected
+                    setState(() {
+                      _selectedMonthValue = date;
+                    });
+                  },
+                ),
+              )
             ],
           ),
         ));
