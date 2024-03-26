@@ -6,6 +6,8 @@
 /// ***
 
 import 'package:date_picker_timeline/gestures/tap.dart';
+import 'package:date_picker_timeline/persian_date/persian_date.dart';
+import 'package:date_picker_timeline/persian_date/persian_number.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -16,6 +18,7 @@ class DateWidget extends StatelessWidget {
   final Color selectionColor;
   final DateSelectionCallback? onDateSelected;
   final String? locale;
+  final bool persianDate;
 
   DateWidget({
     required this.date,
@@ -26,6 +29,7 @@ class DateWidget extends StatelessWidget {
     this.width,
     this.onDateSelected,
     this.locale,
+    this.persianDate = false,
   });
 
   @override
@@ -44,11 +48,11 @@ class DateWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              Text(new DateFormat("MMM", locale).format(date).toUpperCase(), // Month
+              Text(persianDate ? PersianDate.persianMonthNames(date.month) :DateFormat("MMM", locale).format(date).toUpperCase(), // Month
                   style: monthTextStyle),
-              Text(date.day.toString(), // Date
+              Text(persianDate ? '${date.day}'.toPersianDigit() : date.day.toString(), // Date
                   style: dateTextStyle),
-              Text(new DateFormat("E", locale).format(date).toUpperCase(), // WeekDay
+              Text(persianDate ? (PersianDate.persianWeeklyName(date)) : DateFormat("E", locale).format(date).toUpperCase(), // WeekDay
                   style: dayTextStyle)
             ],
           ),
