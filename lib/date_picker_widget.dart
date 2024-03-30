@@ -1,11 +1,13 @@
-
-import 'package:date_picker_timeline/date_widget.dart';
+import 'package:date_picker_timeline/gregorian_date/gregorian_date_widget.dart';
 import 'package:date_picker_timeline/extra/color.dart';
 import 'package:date_picker_timeline/extra/style.dart';
 import 'package:date_picker_timeline/gestures/tap.dart';
 import 'package:date_picker_timeline/persian_date/persian_date.dart';
+import 'package:date_picker_timeline/persian_date/persian_date_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
+
+part 'date_type.dart';
 
 class DatePicker extends StatefulWidget {
   /// Start Date in case user wants to show past dates
@@ -40,7 +42,7 @@ class DatePicker extends StatefulWidget {
   final TextStyle dateTextStyle;
 
   /// Current Selected Date
-  final DateTime?/*?*/ initialSelectedDate;
+  final DateTime? /*?*/ initialSelectedDate;
 
   /// Contains the list of inactive dates.
   /// All the dates defined in this List will be deactivated
@@ -57,7 +59,11 @@ class DatePicker extends StatefulWidget {
   /// Days are counted from the startDate
   final int daysCount;
 
-  final bool persianDate;
+  /// Calendar type
+  final DateType dateType;
+
+  /// Directionality
+  final TextDirection? directionality;
 
   /// Locale for the calendar default: en_us
   final String locale;
@@ -80,7 +86,8 @@ class DatePicker extends StatefulWidget {
         this.daysCount = 500,
         this.onDateChange,
         this.locale = "en_US",
-        this.persianDate = false,
+        this.dateType = DateType.gregorianDate,
+        this.directionality,
       }) : assert(
   activeDates == null || inactiveDates == null,
   "Can't "
@@ -133,7 +140,9 @@ class _DatePickerState extends State<DatePicker> {
   @override
   Widget build(BuildContext context) {
     return Directionality(
-      textDirection: widget.persianDate ? TextDirection.rtl : TextDirection.ltr,
+      textDirection: (widget.directionality) ?? ((widget.dateType == DateType.persianDate)
+          ? TextDirection.rtl
+          : TextDirection.ltr),
       child: Container(
         height: widget.height,
         child: ListView.builder(
@@ -145,8 +154,16 @@ class _DatePickerState extends State<DatePicker> {
             // if widget.startDate is null then use the initialDateValue
             DateTime date;
             DateTime _date = widget.startDate.add(Duration(days: index));
-            date = widget.persianDate ? PersianDate.toJalali(_date.year, _date.month, _date.day) : DateTime(_date.year, _date.month, _date.day);
-
+            switch (widget.dateType) {
+              case DateType.persianDate:
+                date = PersianDate.toJalali(_date.year, _date.month, _date.day);
+                break;
+              case DateType.gregorianDate:
+                date = DateTime(_date.year, _date.month, _date.day);
+                break;
+              default:
+                date = DateTime(_date.year, _date.month, _date.day);
+            }
             bool isDeactivated = false;
 
             // check if this date needs to be deactivated for only DeactivatedDates
@@ -174,42 +191,77 @@ class _DatePickerState extends State<DatePicker> {
             bool isSelected = _currentDate != null
                 ? DateUtils.isSameDay(date, _currentDate!)
                 : false;
-
             // Return the Date Widget
-            return DateWidget(
-              persianDate: widget.persianDate,
-              date: date,
-              monthTextStyle: isDeactivated
-                  ? deactivatedMonthStyle
-                  : isSelected
-                  ? selectedMonthStyle
-                  : widget.monthTextStyle,
-              dateTextStyle: isDeactivated
-                  ? deactivatedDateStyle
-                  : isSelected
-                  ? selectedDateStyle
-                  : widget.dateTextStyle,
-              dayTextStyle: isDeactivated
-                  ? deactivatedDayStyle
-                  : isSelected
-                  ? selectedDayStyle
-                  : widget.dayTextStyle,
-              width: widget.width,
-              locale: widget.locale,
-              selectionColor:
-              isSelected ? widget.selectionColor : Colors.transparent,
-              onDateSelected: (selectedDate) {
-                // Don't notify listener if date is deactivated
-                if (isDeactivated) return;
+            switch (widget.dateType) {
+              case DateType.gregorianDate:
+                return GregorianDateWidget(
+                  date: date,
+                  monthTextStyle: isDeactivated
+                      ? deactivatedMonthStyle
+                      : isSelected
+                      ? selectedMonthStyle
+                      : widget.monthTextStyle,
+                  dateTextStyle: isDeactivated
+                      ? deactivatedDateStyle
+                      : isSelected
+                      ? selectedDateStyle
+                      : widget.dateTextStyle,
+                  dayTextStyle: isDeactivated
+                      ? deactivatedDayStyle
+                      : isSelected
+                      ? selectedDayStyle
+                      : widget.dayTextStyle,
+                  width: widget.width,
+                  locale: widget.locale,
+                  selectionColor:
+                  isSelected ? widget.selectionColor : Colors.transparent,
+                  onDateSelected: (selectedDate) {
+                    // Don't notify listener if date is deactivated
+                    if (isDeactivated) return;
 
-                // A date is selected
-                widget.onDateChange?.call(selectedDate);
+                    // A date is selected
+                    widget.onDateChange?.call(selectedDate);
 
-                setState(() {
-                  _currentDate = selectedDate;
-                });
-              },
-            );
+                    setState(() {
+                      _currentDate = selectedDate;
+                    });
+                  },
+                );
+              case DateType.persianDate:
+                return PersianDateWidget(
+                  date: date,
+                  monthTextStyle: isDeactivated
+                      ? deactivatedMonthStyle
+                      : isSelected
+                      ? selectedMonthStyle
+                      : widget.monthTextStyle,
+                  dateTextStyle: isDeactivated
+                      ? deactivatedDateStyle
+                      : isSelected
+                      ? selectedDateStyle
+                      : widget.dateTextStyle,
+                  dayTextStyle: isDeactivated
+                      ? deactivatedDayStyle
+                      : isSelected
+                      ? selectedDayStyle
+                      : widget.dayTextStyle,
+                  width: widget.width,
+                  locale: widget.locale,
+                  selectionColor:
+                  isSelected ? widget.selectionColor : Colors.transparent,
+                  onDateSelected: (selectedDate) {
+                    // Don't notify listener if date is deactivated
+                    if (isDeactivated) return;
+
+                    // A date is selected
+                    widget.onDateChange?.call(selectedDate);
+
+                    setState(() {
+                      _currentDate = selectedDate;
+                    });
+                  },
+                );
+            }
           },
         ),
       ),
@@ -268,8 +320,9 @@ class DatePickerController {
         duration: duration, curve: curve);
 
     if (date.compareTo(_datePickerState!.widget.startDate) >= 0 &&
-        date.compareTo(_datePickerState!.widget.startDate.add(
-            Duration(days: _datePickerState!.widget.daysCount))) <= 0) {
+        date.compareTo(_datePickerState!.widget.startDate
+            .add(Duration(days: _datePickerState!.widget.daysCount))) <=
+            0) {
       // date is in the range
       _datePickerState!._currentDate = date;
     }
