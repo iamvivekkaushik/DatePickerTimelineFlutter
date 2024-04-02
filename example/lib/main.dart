@@ -65,7 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: DatePicker(
                   DateTime.now(),
                   width: 60,
-                  height: 80,
+                  height: 88,
                   controller: _controller,
                   initialSelectedDate: DateTime.now(),
                   selectionColor: Colors.black,
