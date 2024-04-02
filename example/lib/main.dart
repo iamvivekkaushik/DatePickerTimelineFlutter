@@ -65,7 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: DatePicker(
                   DateTime.now(),
                   width: 60,
-                  height: 80,
+                  height: 88,
                   controller: _controller,
                   initialSelectedDate: DateTime.now(),
                   selectionColor: Colors.black,
@@ -75,6 +75,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     DateTime.now().add(Duration(days: 4)),
                     DateTime.now().add(Duration(days: 7))
                   ],
+                  builder: (context, child) {
+                    return Container(color: Colors.yellow, child: child);
+                  },
                   onDateChange: (date) {
                     // New date selected
                     setState(() {

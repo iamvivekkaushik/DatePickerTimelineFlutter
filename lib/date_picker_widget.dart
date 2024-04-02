@@ -20,6 +20,9 @@ class DatePicker extends StatefulWidget {
   /// Height of the selector
   final double height;
 
+  /// Builder for customizing the child view
+  final Widget Function(BuildContext, Widget?)? builder;
+
   /// DatePicker Controller
   final DatePickerController? controller;
 
@@ -72,7 +75,8 @@ class DatePicker extends StatefulWidget {
       this.startDate, {
         Key? key,
         this.width = 60,
-        this.height = 80,
+        this.height = 88,
+        this.builder,
         this.controller,
         this.monthTextStyle = defaultMonthTextStyle,
         this.dayTextStyle = defaultDayTextStyle,
@@ -192,9 +196,10 @@ class _DatePickerState extends State<DatePicker> {
                 ? DateUtils.isSameDay(date, _currentDate!)
                 : false;
             // Return the Date Widget
+            Widget childWidget = const SizedBox.shrink();
             switch (widget.calendarType) {
               case CalendarType.gregorianDate:
-                return GregorianDateWidget(
+                childWidget = GregorianDateWidget(
                   date: date,
                   monthTextStyle: isDeactivated
                       ? deactivatedMonthStyle
@@ -227,8 +232,9 @@ class _DatePickerState extends State<DatePicker> {
                     });
                   },
                 );
+                break;
               case CalendarType.persianDate:
-                return PersianDateWidget(
+                childWidget = PersianDateWidget(
                   date: date,
                   monthTextStyle: isDeactivated
                       ? deactivatedMonthStyle
@@ -261,7 +267,12 @@ class _DatePickerState extends State<DatePicker> {
                     });
                   },
                 );
+                break;
             }
+            if (widget.builder != null && isSelected) {
+              return widget.builder!(context, childWidget);
+            }
+            return childWidget;
           },
         ),
       ),
