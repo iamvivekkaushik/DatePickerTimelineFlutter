@@ -63,6 +63,7 @@ DatePicker(
     this.daysCount,
     this.onDateChange,
     this.locale = "en_US",
+    this.calendarType = CalendarType.gregorianDate,
 }) : super(key: key);
 ```
 

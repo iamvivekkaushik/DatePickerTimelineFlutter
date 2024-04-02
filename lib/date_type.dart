@@ -1,8 +1,7 @@
 
 part of 'date_picker_widget.dart';
 
-enum DateType {
-
+enum CalendarType {
   persianDate,
   gregorianDate,
 }

@@ -60,7 +60,7 @@ class DatePicker extends StatefulWidget {
   final int daysCount;
 
   /// Calendar type
-  final DateType dateType;
+  final CalendarType calendarType;
 
   /// Directionality
   final TextDirection? directionality;
@@ -86,7 +86,7 @@ class DatePicker extends StatefulWidget {
         this.daysCount = 500,
         this.onDateChange,
         this.locale = "en_US",
-        this.dateType = DateType.gregorianDate,
+        this.calendarType = CalendarType.gregorianDate,
         this.directionality,
       }) : assert(
   activeDates == null || inactiveDates == null,
@@ -140,7 +140,7 @@ class _DatePickerState extends State<DatePicker> {
   @override
   Widget build(BuildContext context) {
     return Directionality(
-      textDirection: (widget.directionality) ?? ((widget.dateType == DateType.persianDate)
+      textDirection: (widget.directionality) ?? ((widget.calendarType == CalendarType.persianDate)
           ? TextDirection.rtl
           : TextDirection.ltr),
       child: Container(
@@ -154,11 +154,11 @@ class _DatePickerState extends State<DatePicker> {
             // if widget.startDate is null then use the initialDateValue
             DateTime date;
             DateTime _date = widget.startDate.add(Duration(days: index));
-            switch (widget.dateType) {
-              case DateType.persianDate:
+            switch (widget.calendarType) {
+              case CalendarType.persianDate:
                 date = PersianDate.toJalali(_date.year, _date.month, _date.day);
                 break;
-              case DateType.gregorianDate:
+              case CalendarType.gregorianDate:
                 date = DateTime(_date.year, _date.month, _date.day);
                 break;
               default:
@@ -192,8 +192,8 @@ class _DatePickerState extends State<DatePicker> {
                 ? DateUtils.isSameDay(date, _currentDate!)
                 : false;
             // Return the Date Widget
-            switch (widget.dateType) {
-              case DateType.gregorianDate:
+            switch (widget.calendarType) {
+              case CalendarType.gregorianDate:
                 return GregorianDateWidget(
                   date: date,
                   monthTextStyle: isDeactivated
@@ -227,7 +227,7 @@ class _DatePickerState extends State<DatePicker> {
                     });
                   },
                 );
-              case DateType.persianDate:
+              case CalendarType.persianDate:
                 return PersianDateWidget(
                   date: date,
                   monthTextStyle: isDeactivated
