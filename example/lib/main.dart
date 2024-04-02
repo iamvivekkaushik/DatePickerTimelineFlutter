@@ -75,6 +75,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     DateTime.now().add(Duration(days: 4)),
                     DateTime.now().add(Duration(days: 7))
                   ],
+                  builder: (context, child) {
+                    return Container(color: Colors.yellow, child: child);
+                  },
                   onDateChange: (date) {
                     // New date selected
                     setState(() {

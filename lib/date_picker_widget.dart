@@ -269,7 +269,7 @@ class _DatePickerState extends State<DatePicker> {
                 );
                 break;
             }
-            if (widget.builder != null) {
+            if (widget.builder != null && isSelected) {
               return widget.builder!(context, childWidget);
             }
             return childWidget;
