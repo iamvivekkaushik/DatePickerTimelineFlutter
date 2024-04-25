@@ -1,9 +1,9 @@
-/// ***
+/// *
 /// This class consists of the DateWidget that is used in the ListView.builder
 ///
 /// Author: Vivek Kaushik <me@vivekkasuhik.com>
 /// github: https://github.com/iamvivekkaushik/
-/// ***
+/// *
 
 import 'package:date_picker_timeline/gestures/tap.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +16,9 @@ class GregorianDateWidget extends StatelessWidget {
   final Color selectionColor;
   final DateSelectionCallback? onDateSelected;
   final String? locale;
+  final bool? isDayCircle;
+  final Color? circleColor;
+  final double? circlePadding;
 
   GregorianDateWidget({
     required this.date,
@@ -26,14 +29,16 @@ class GregorianDateWidget extends StatelessWidget {
     this.width,
     this.onDateSelected,
     this.locale,
+    this.isDayCircle = false,
+    this.circleColor = Colors.transparent,
+    this.circlePadding = 10,
   });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       customBorder: RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(8.0))
-      ),
+          borderRadius: BorderRadius.all(Radius.circular(8.0))),
       child: Container(
         width: width,
         margin: const EdgeInsets.all(3.0),
@@ -47,11 +52,24 @@ class GregorianDateWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              Text(DateFormat("MMM", locale).format(date).toUpperCase(), // Month
+              Text(
+                  DateFormat("MMM", locale).format(date).toUpperCase(), // Month
                   style: monthTextStyle),
-              Text(date.day.toString(), // Date
-                  style: dateTextStyle),
-              Text(DateFormat("E", locale).format(date).toUpperCase(), // WeekDay
+              isDayCircle == true
+                  ? Container(
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.all(circlePadding ?? 10),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: circleColor,
+                      ),
+                      child: Text(date.day.toString(), // Date
+                          style: dateTextStyle),
+                    )
+                  : Text(date.day.toString(), // Date
+                      style: dateTextStyle),
+              Text(
+                  DateFormat("E", locale).format(date).toUpperCase(), // WeekDay
                   style: dayTextStyle)
             ],
           ),
