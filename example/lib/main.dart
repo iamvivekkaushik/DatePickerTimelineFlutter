@@ -85,7 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
               Container(
                 child: MonthPicker(
                   startDate: DateTime.now(),
-                  height: 80,
+                  height: 50,
                   initialSelectedDate: _selectedMonthValue,
                   selectionColor: Colors.black,
                   selectedTextColor: Colors.white,
@@ -123,7 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
               Container(
                 child: YearPickerTimeline(
                   startDate: DateTime.now(),
-                  height: 80,
+                  height: 45,
                   initialSelectedDate: _selectedMonthValue,
                   selectionColor: Colors.black,
                   selectedTextColor: Colors.white,

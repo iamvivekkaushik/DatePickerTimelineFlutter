@@ -11,6 +11,7 @@ class MonthWidget extends StatelessWidget {
   final DateSelectionCallback? onDateSelected;
   final String? locale;
   final bool isSelected;
+  final bool showIcon;
 
   const MonthWidget({
     required this.month,
@@ -22,6 +23,7 @@ class MonthWidget extends StatelessWidget {
     this.width,
     this.onDateSelected,
     this.locale,
+    this.showIcon = false,
   });
 
   @override
@@ -40,14 +42,15 @@ class MonthWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.only(top: 2.0),
-                child: Icon(
-                  Icons.circle,
-                  color: iconColor,
-                  size: isSelected ? 12 : 8,
+              if (showIcon)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2.0),
+                  child: Icon(
+                    Icons.circle,
+                    color: iconColor,
+                    size: isSelected ? 12 : 8,
+                  ),
                 ),
-              ),
               Text(
                 "${DateFormat("MMM", locale).format(month).replaceAll(RegExp(r'[.]+'), '').toUpperCase()}\n${DateFormat("y", locale).format(month).toUpperCase().lastChars(2)}", // Month
                 style: monthTextStyle,
