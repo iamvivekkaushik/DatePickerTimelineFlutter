@@ -1,3 +1,7 @@
+## [1.2.7] - 27/05/2025
+
+* Update intl version
+
 ## [1.2.6] - 2/04/2024
 
 * Added Support for Gregorian Calendar
