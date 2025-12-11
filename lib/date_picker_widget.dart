@@ -110,6 +110,12 @@ class _DatePickerState extends State<DatePicker> {
   late final TextStyle deactivatedMonthStyle;
   late final TextStyle deactivatedDayStyle;
 
+  late final DateTime baseDate = DateTime(
+    widget.startDate.year,
+    widget.startDate.month,
+    widget.startDate.day,
+  );  
+
   @override
   void initState() {
     // Init the calendar locale
@@ -153,7 +159,11 @@ class _DatePickerState extends State<DatePicker> {
             // get the date object based on the index position
             // if widget.startDate is null then use the initialDateValue
             DateTime date;
-            DateTime _date = widget.startDate.add(Duration(days: index));
+            DateTime _date = DateTime(
+              baseDate.year,
+              baseDate.month,
+              baseDate.day + index,
+            );
             switch (widget.calendarType) {
               case CalendarType.persianDate:
                 date = PersianDate.toJalali(_date.year, _date.month, _date.day);
