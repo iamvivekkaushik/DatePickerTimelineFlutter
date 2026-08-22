@@ -11,19 +11,20 @@ jobs:
     name: Publish to pub.dev
     permissions:
       id-token: write # This is required for requesting the JWT
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout App Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Setup Dart SDK with JWT token
       - uses: dart-lang/setup-dart@d6a63dab3335f427404425de0fbfed4686d93c4f
 
       # Install Flutter
-      - name: Install Flutter & Build App Bundle
+      - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+          cache: true
 
       # Get dependencies
       - name: Install Flutter Packages
@@ -31,8 +32,8 @@ jobs:
 
       # Check if the version is valid
       - name: Check Version
-        run: flutter pub run tools/publish/check_version.dart ${GITHUB_REF}
+        run: dart run tools/publish/check_version.dart ${GITHUB_REF}
 
       # Publish to pub.dev
       - name: Publish to pub.dev
-        run: flutter pub pub publish -f
+        run: flutter pub publish --force

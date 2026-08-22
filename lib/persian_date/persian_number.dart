@@ -5,16 +5,19 @@ extension StringExtensions on String {
 }
 
 class NumberUtility {
+  static const int _latinZero = 0x30; // '0'
+  static const int _latinNine = 0x39; // '9'
+  static const int _persianZero = 0x6F0; // '۰' (U+06F0..U+06F9 is contiguous)
+
+  /// Replaces every Latin digit in [number] with its Persian equivalent.
   static String changeDigit(String number) {
-    var persianNumbers = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-    var arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-    var enNumbers = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "."];{
-      for (var i = 0; i < 10; i++) {
-        number = number
-            .replaceAll(RegExp(enNumbers[i]), persianNumbers[i])
-            .replaceAll(RegExp(enNumbers[i]), arabicNumbers[i]);
-      }
+    final units = number.codeUnits;
+    final out = StringBuffer();
+    for (final c in units) {
+      out.writeCharCode(c >= _latinZero && c <= _latinNine
+          ? _persianZero + (c - _latinZero)
+          : c);
     }
-    return number;
+    return out.toString();
   }
 }

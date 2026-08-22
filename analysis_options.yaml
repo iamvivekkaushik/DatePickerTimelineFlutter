@@ -1,0 +1,7 @@
+# Lint rules for this package. See https://dart.dev/tools/analysis
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  errors:
+    # The example app is not published, so its path dependency is fine.
+    invalid_dependency: ignore

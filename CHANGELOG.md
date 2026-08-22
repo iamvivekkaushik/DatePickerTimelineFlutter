@@ -1,3 +1,26 @@
+## [1.3.0] - 22/08/2026
+
+* Updated dependencies for the latest Flutter: `intl` widened to `>=0.19.0 <0.21.0`, Dart SDK floor raised to 3.5.0 (Flutter 3.24)
+* Fixed date tiles overflowing when the given `height` is too small for the text
+  styles, e.g. on devices with a taller system font or a large text-scale
+  setting. Labels now scale down instead of overflowing
+* Modernised the example app's Android build (AGP 8.11.1, Gradle 8.14, Kotlin
+  2.2.20, compileSdk 36) and raised its iOS deployment target to 13.0
+* Adopted `flutter_lints` and cleaned up all analyzer warnings
+* Fixed `DatePickerController` crashes: `jumpToSelection`/`animateToSelection`
+  no longer throw when nothing is selected, methods no-op instead of crashing
+  when the picker is unmounted or not yet laid out, and out-of-range dates are
+  ignored as documented. Added `isAttached`
+* `setDateAndAnimate` now repaints the selection highlight
+* The picker now reacts to widget updates (changed text styles, colors,
+  locale, or a new controller instance) and disposes its scroll controller
+* Performance: fixed `itemExtent` on the list, cached `DateFormat` instances,
+  and O(1) active/inactive date lookup
+* Date tiles are DST-safe (calendar-day arithmetic instead of 24-hour jumps)
+* Example app rebuilt as a design showcase: Classic, Midnight (dark), Booking
+  (weekends disabled), Sunset (gradient), Compact, Localized (`de_DE`), and a
+  `DatePickerController` playground
+
 ## [1.2.7] - 27/05/2025
 
 * Update intl version

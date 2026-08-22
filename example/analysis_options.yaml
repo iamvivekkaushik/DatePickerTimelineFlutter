@@ -1,0 +1,2 @@
+# Lint rules for this package. See https://dart.dev/tools/analysis
+include: package:flutter_lints/flutter.yaml

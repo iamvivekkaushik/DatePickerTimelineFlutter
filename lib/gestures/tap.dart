@@ -1,9 +1,9 @@
-/// Signature for a function that detects when a tap is occurred.
+/// Signature for a function that detects when a tap has occurred.
 ///
-/// Used by [DatePickerTimeline] for tap detection.
+/// Used by [DatePicker] for tap detection.
 typedef DateSelectionCallback = void Function(DateTime selectedDate);
 
-/// Signature for a function that is called when selected date is changed
+/// Signature for a function that is called when the selected date changes.
 ///
-/// Used by [DatePickerTimeline] for tap detection.
-typedef DateChangeListener = void Function(DateTime selectedDate);
+/// Used by [DatePicker] for change notification.
+typedef DateChangeListener = DateSelectionCallback;

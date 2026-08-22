@@ -1,5 +1,5 @@
 class PersianDate {
-  static toJalali(int y, int m, int d, {bool twoDigits = false}) {
+  static DateTime toJalali(int y, int m, int d, {bool twoDigits = false}) {
     const sumMonthDay = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
     int jY = y > 1600 ? 979 : 0;
     y -= jY > 0 ? 1600 : 621;
@@ -27,14 +27,12 @@ class PersianDate {
       jm = 7 + ((days - 186) ~/ 30);
       jd = 1 + (days - 186) % 30;
     }
-    int month =
-    twoDigits ? int.parse(jm.toString().padLeft(2, '0')) : jm;
-    int jDay =
-    twoDigits ? int.parse(jd.toString().padLeft(2, '0')) : jd;
-    return DateTime(jY,month, jDay);
+    int month = twoDigits ? int.parse(jm.toString().padLeft(2, '0')) : jm;
+    int jDay = twoDigits ? int.parse(jd.toString().padLeft(2, '0')) : jd;
+    return DateTime(jY, month, jDay);
   }
 
-  static persianMonthNames(int m) {
+  static String persianMonthNames(int m) {
     switch (m) {
       case 1:
         return "فروردین";
@@ -65,7 +63,7 @@ class PersianDate {
     }
   }
 
-  static jalaliToGregorian(int y, int m, int d) {
+  static DateTime jalaliToGregorian(int y, int m, int d) {
     int gY;
     if (y > 979) {
       gY = 1600;
@@ -113,11 +111,12 @@ class PersianDate {
       if (gD <= montDays[i]) break;
       gD -= montDays[i];
     }
-    return DateTime(gY,i,gD);
+    return DateTime(gY, i, gD);
   }
 
-  static persianWeeklyName(DateTime dateTime) {
-    DateTime gregorianDate = jalaliToGregorian(dateTime.year, dateTime.month, dateTime.day);
+  static String persianWeeklyName(DateTime dateTime) {
+    DateTime gregorianDate =
+        jalaliToGregorian(dateTime.year, dateTime.month, dateTime.day);
     switch (gregorianDate.weekday) {
       case 1:
         return "دوشنبه";
