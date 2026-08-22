@@ -5,7 +5,7 @@
 Flutter Date Picker Library that provides a calendar as a horizontal timeline.
 
 <p>
- <img src="screenshots/demo.gif" alt="DatePickerTimeline demo"/>
+ <img src="https://raw.githubusercontent.com/iamvivekkaushik/DatePickerTimelineFlutter/v1.3.0/screenshots/demo.gif" alt="DatePickerTimeline demo"/>
 </p>
 
 ## Installation
@@ -108,9 +108,9 @@ can copy into your project — Classic, Past & future (`showPastDates`), Midnigh
 Localized, and a controller playground:
 
 <p>
- <img src="screenshots/showcase_1.png" width="260" alt="Classic, Midnight and Booking designs"/>
- <img src="screenshots/showcase_2.png" width="260" alt="Sunset gradient and Compact designs"/>
- <img src="screenshots/showcase_3.png" width="260" alt="Localized and Controller designs"/>
+ <img src="https://raw.githubusercontent.com/iamvivekkaushik/DatePickerTimelineFlutter/v1.3.0/screenshots/showcase_1.png" width="260" alt="Classic, Midnight and Booking designs"/>
+ <img src="https://raw.githubusercontent.com/iamvivekkaushik/DatePickerTimelineFlutter/v1.3.0/screenshots/showcase_2.png" width="260" alt="Sunset gradient and Compact designs"/>
+ <img src="https://raw.githubusercontent.com/iamvivekkaushik/DatePickerTimelineFlutter/v1.3.0/screenshots/showcase_3.png" width="260" alt="Localized and Controller designs"/>
 </p>
 
 Run it with:
