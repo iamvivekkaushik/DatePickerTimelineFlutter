@@ -34,6 +34,8 @@ class ShowcasePage extends StatelessWidget {
         children: const [
           ClassicDemo(),
           SizedBox(height: 16),
+          TimelineDemo(),
+          SizedBox(height: 16),
           MidnightDemo(),
           SizedBox(height: 16),
           BookingDemo(),
@@ -184,6 +186,54 @@ class _ClassicDemoState extends State<ClassicDemo> {
             date: _selected,
             color: Colors.black,
             textColor: Colors.white,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Past and future: today opens centered, history scrolls off to the left.
+class TimelineDemo extends StatefulWidget {
+  const TimelineDemo({super.key});
+
+  @override
+  State<TimelineDemo> createState() => _TimelineDemoState();
+}
+
+class _TimelineDemoState extends State<TimelineDemo> {
+  static const _blue = Color(0xFF0277BD);
+  final DatePickerController _controller = DatePickerController();
+  DateTime? _selected = DateTime.now();
+
+  @override
+  Widget build(BuildContext context) {
+    return DesignCard(
+      title: 'Past & future',
+      subtitle: 'showPastDates: true — today opens centered',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          DatePicker(
+            DateTime.now(),
+            showPastDates: true,
+            controller: _controller,
+            initialSelectedDate: DateTime.now(),
+            selectionColor: _blue,
+            selectedTextColor: Colors.white,
+            daysCount: 120,
+            onDateChange: (date) => setState(() => _selected = date),
+          ),
+          const SizedBox(height: 12),
+          _ChipButton(
+            label: 'Center on selection',
+            onTap: () =>
+                _controller.animateToSelection(curve: Curves.easeOutCubic),
+          ),
+          SelectedPill(
+            date: _selected,
+            color: _blue.withValues(alpha: 0.12),
+            textColor: _blue,
           ),
         ],
       ),

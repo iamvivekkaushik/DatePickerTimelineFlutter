@@ -44,7 +44,7 @@ DatePicker(
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
-| `startDate` | `DateTime` | required (positional) | First date on the timeline. Dates continue for `daysCount` days |
+| `startDate` | `DateTime` | required (positional) | First date on the timeline (or the centered anchor when `showPastDates` is on). Dates continue for `daysCount` days |
 | `width` | `double` | `60` | Width of a single date tile |
 | `height` | `double` | `80` | Height of the picker. Labels scale down automatically if the text styles don't fit |
 | `controller` | `DatePickerController?` | `null` | Drives the picker programmatically — see [DatePickerController](#datepickercontroller) |
@@ -58,6 +58,7 @@ DatePicker(
 | `inactiveDates` | `List<DateTime>?` | `null` | These dates are greyed out and can't be selected (e.g. weekends, holidays) |
 | `activeDates` | `List<DateTime>?` | `null` | Only these dates can be selected; everything else is deactivated. Can't be combined with `inactiveDates` |
 | `daysCount` | `int` | `500` | How many days to render, counted from `startDate` |
+| `showPastDates` | `bool` | `false` | Also show past dates: half of `daysCount` falls before `startDate`, the picker opens with the selection (or `startDate`) centered, and controller methods scroll dates to the center instead of the leading edge |
 | `onDateChange` | `void Function(DateTime)?` | `null` | Called with the tapped date whenever the selection changes |
 | `locale` | `String` | `"en_US"` | Locale for month and weekday names (e.g. `"de_DE"`, `"fr_FR"`) |
 | `calendarType` | `CalendarType` | `gregorianDate` | `gregorianDate` or `persianDate` (Jalali) |
@@ -95,14 +96,16 @@ _controller.setDateAndAnimate(someDate);          // select a date AND scroll to
 | `isAttached` | Whether the controller is attached to a mounted `DatePicker` |
 
 All methods are safe no-ops when the controller isn't attached, nothing is
-selected yet, or the target date is outside `startDate .. startDate + daysCount - 1`.
+selected yet, or the target date is outside the rendered range. With
+`showPastDates: true` every method centers the target date in the viewport
+instead of aligning it to the leading edge.
 
 ## Design showcase
 
-The [example app](example/lib/main.dart) contains seven ready-made designs you
-can copy into your project — Classic, Midnight (dark theme), Booking (weekends
-disabled), Sunset (gradient hero), Compact, Localized, and a controller
-playground:
+The [example app](example/lib/main.dart) contains eight ready-made designs you
+can copy into your project — Classic, Past & future (`showPastDates`), Midnight
+(dark theme), Booking (weekends disabled), Sunset (gradient hero), Compact,
+Localized, and a controller playground:
 
 <p>
  <img src="screenshots/showcase_1.png" width="260" alt="Classic, Midnight and Booking designs"/>
@@ -117,6 +120,18 @@ cd example && flutter run
 ```
 
 ### Recipes
+
+**Timeline with history** — today opens centered, past on the left:
+
+```dart
+DatePicker(
+  DateTime.now(),
+  showPastDates: true,   // 60 past days + 60 future days
+  daysCount: 120,
+  initialSelectedDate: DateTime.now(),
+  ...
+)
+```
 
 **Disable weekends** (Booking design):
 

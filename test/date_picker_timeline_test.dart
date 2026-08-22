@@ -287,6 +287,103 @@ void main() {
     });
   });
 
+  group('showPastDates', () {
+    // Tile extent is width + 2*3 margin = 66. A 264px-wide viewport shows
+    // exactly 4 tiles, so "centered" positions are easy to compute.
+    Widget pickerBox(DatePickerController? controller,
+        {DateTime? initialSelectedDate}) {
+      return _wrap(Center(
+        child: SizedBox(
+          width: 264,
+          child: DatePicker(
+            _start,
+            width: 60,
+            daysCount: 40,
+            showPastDates: true,
+            controller: controller,
+            initialSelectedDate: initialSelectedDate,
+            selectionColor: Colors.black,
+          ),
+        ),
+      ));
+    }
+
+    testWidgets('renders past dates left of the anchor', (tester) async {
+      await tester.pumpWidget(pickerBox(null, initialSelectedDate: _start));
+      // Anchor 2026-08-22 with daysCount 40 -> 20 past days, range starts
+      // 2026-08-02. The anchor opens centered, so 21 (yesterday) is visible
+      // on its left.
+      final anchor = tester.getCenter(find.text('22'));
+      final yesterday = tester.getCenter(find.text('21'));
+      expect(yesterday.dx, lessThan(anchor.dx));
+    });
+
+    testWidgets('opens with the anchor centered in the viewport',
+        (tester) async {
+      await tester.pumpWidget(pickerBox(null, initialSelectedDate: _start));
+      final box = tester.getRect(find.byType(SizedBox).first);
+      final anchor = tester.getCenter(find.text('22'));
+      expect(anchor.dx, moreOrLessEquals(box.center.dx, epsilon: 1.0));
+    });
+
+    testWidgets('animateToSelection centers the selected date', (tester) async {
+      final controller = DatePickerController();
+      await tester
+          .pumpWidget(pickerBox(controller, initialSelectedDate: _start));
+      // Scroll away, then return: the selection must land in the center,
+      // not at the leading edge.
+      controller.animateToDate(DateUtils.addDaysToDate(_start, 12));
+      await tester.pumpAndSettle();
+      controller.animateToSelection();
+      await tester.pumpAndSettle();
+      final box = tester.getRect(find.byType(SizedBox).first);
+      final anchor = tester.getCenter(find.text('22'));
+      expect(anchor.dx, moreOrLessEquals(box.center.dx, epsilon: 1.0));
+    });
+
+    testWidgets('setDateAndAnimate selects a past date and centers it',
+        (tester) async {
+      final controller = DatePickerController();
+      await tester
+          .pumpWidget(pickerBox(controller, initialSelectedDate: _start));
+      final pastDate = DateUtils.addDaysToDate(_start, -10); // 2026-08-12
+      controller.setDateAndAnimate(pastDate);
+      await tester.pumpAndSettle();
+      final box = tester.getRect(find.byType(SizedBox).first);
+      expect(_selectionColorFor(tester, '12'), Colors.black);
+      expect(tester.getCenter(find.text('12')).dx,
+          moreOrLessEquals(box.center.dx, epsilon: 1.0));
+    });
+
+    testWidgets('dates before the past range are still out of range',
+        (tester) async {
+      final controller = DatePickerController();
+      await tester
+          .pumpWidget(pickerBox(controller, initialSelectedDate: _start));
+      // Range starts at anchor - 20 days; 21 days back is out of range.
+      controller.setDateAndAnimate(DateUtils.addDaysToDate(_start, -21));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(_selectionColorFor(tester, '22'), Colors.black);
+    });
+
+    testWidgets('default (showPastDates false) keeps leading-edge behavior',
+        (tester) async {
+      final controller = DatePickerController();
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        width: 60,
+        controller: controller,
+      )));
+      final scrollable =
+          tester.widget<ListView>(find.byType(ListView)).controller!;
+      expect(scrollable.offset, 0.0);
+      controller.animateToDate(DateUtils.addDaysToDate(_start, 10));
+      await tester.pumpAndSettle();
+      expect(scrollable.offset, 660.0);
+    });
+  });
+
   group('persian digits', () {
     test('toPersianDigit converts every Latin digit', () {
       expect('0123456789'.toPersianDigit(), '۰۱۲۳۴۵۶۷۸۹');

@@ -17,6 +17,9 @@
 * Performance: fixed `itemExtent` on the list, cached `DateFormat` instances,
   and O(1) active/inactive date lookup
 * Date tiles are DST-safe (calendar-day arithmetic instead of 24-hour jumps)
+* Added `showPastDates`: renders past dates left of `startDate` (half of
+  `daysCount`), opens with the selection centered, and makes all
+  `DatePickerController` methods center the target date in the viewport
 * Example app rebuilt as a design showcase: Classic, Midnight (dark), Booking
   (weekends disabled), Sunset (gradient), Compact, Localized (`de_DE`), and a
   `DatePickerController` playground
