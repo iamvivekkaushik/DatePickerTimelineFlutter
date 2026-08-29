@@ -1,6 +1,6 @@
 /// The calendar unit each tile on the timeline represents.
 enum DateGranularity {
-  /// One tile per day (the default, and the pre-1.5 behavior).
+  /// One tile per day (the default, and the pre-1.4 behavior).
   day,
 
   /// One tile per week. Tapping a tile selects and emits the week's first
