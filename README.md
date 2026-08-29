@@ -8,6 +8,29 @@ Flutter Date Picker Library that provides a calendar as a horizontal timeline.
  <img src="https://raw.githubusercontent.com/iamvivekkaushik/DatePickerTimelineFlutter/v1.3.0/screenshots/demo.gif" alt="DatePickerTimeline demo"/>
 </p>
 
+## Design showcase
+
+The [example app](example/lib/main.dart) contains eleven ready-made designs
+you can copy into your project — Classic, Past & future (`showPastDates`),
+Midnight (dark theme), Booking (weekends disabled), Sunset (gradient hero),
+Compact, Localized, a controller playground, Multi-pick
+(`selectionMode: multiple`), Range (`selectionMode: range`), and
+Weeks & months (`granularity`):
+
+<p>
+ <img src="https://raw.githubusercontent.com/iamvivekkaushik/DatePickerTimelineFlutter/v1.3.0/screenshots/showcase_1.png" width="260" alt="Classic, Midnight and Booking designs"/>
+ <img src="https://raw.githubusercontent.com/iamvivekkaushik/DatePickerTimelineFlutter/v1.3.0/screenshots/showcase_2.png" width="260" alt="Sunset gradient and Compact designs"/>
+ <img src="https://raw.githubusercontent.com/iamvivekkaushik/DatePickerTimelineFlutter/v1.3.0/screenshots/showcase_3.png" width="260" alt="Localized and Controller designs"/>
+ <img src="https://raw.githubusercontent.com/iamvivekkaushik/DatePickerTimelineFlutter/v1.4.0/screenshots/showcase_4.png" width="260" alt="Multi-pick and Range designs"/>
+ <img src="https://raw.githubusercontent.com/iamvivekkaushik/DatePickerTimelineFlutter/v1.4.0/screenshots/showcase_5.png" width="260" alt="Weeks and months granularity"/>
+</p>
+
+Run it with:
+
+```bash
+cd example && flutter run
+```
+
 ## Installation
 
 Add the dependency to your `pubspec.yaml`:
@@ -179,30 +202,7 @@ instead of aligning it to the leading edge. `jumpToSelection` and
 selected date. Controller methods change the selection silently —
 `onDateChange`/`onSelectionChange` fire for user taps only.
 
-## Design showcase
-
-The [example app](example/lib/main.dart) contains eleven ready-made designs
-you can copy into your project — Classic, Past & future (`showPastDates`),
-Midnight (dark theme), Booking (weekends disabled), Sunset (gradient hero),
-Compact, Localized, a controller playground, Multi-pick
-(`selectionMode: multiple`), Range (`selectionMode: range`), and
-Weeks & months (`granularity`):
-
-<p>
- <img src="https://raw.githubusercontent.com/iamvivekkaushik/DatePickerTimelineFlutter/v1.3.0/screenshots/showcase_1.png" width="260" alt="Classic, Midnight and Booking designs"/>
- <img src="https://raw.githubusercontent.com/iamvivekkaushik/DatePickerTimelineFlutter/v1.3.0/screenshots/showcase_2.png" width="260" alt="Sunset gradient and Compact designs"/>
- <img src="https://raw.githubusercontent.com/iamvivekkaushik/DatePickerTimelineFlutter/v1.3.0/screenshots/showcase_3.png" width="260" alt="Localized and Controller designs"/>
- <img src="https://raw.githubusercontent.com/iamvivekkaushik/DatePickerTimelineFlutter/v1.4.0/screenshots/showcase_4.png" width="260" alt="Multi-pick and Range designs"/>
- <img src="https://raw.githubusercontent.com/iamvivekkaushik/DatePickerTimelineFlutter/v1.4.0/screenshots/showcase_5.png" width="260" alt="Weeks and months granularity"/>
-</p>
-
-Run it with:
-
-```bash
-cd example && flutter run
-```
-
-### Recipes
+## Recipes
 
 **Timeline with history** — today opens centered, past on the left:
 
