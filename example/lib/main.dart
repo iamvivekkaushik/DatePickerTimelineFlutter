@@ -441,7 +441,7 @@ class _CompactDemoState extends State<CompactDemo> {
     );
     return DesignCard(
       title: 'Compact',
-      subtitle: '44 × 64 tiles for dense layouts',
+      subtitle: '44 × 64 tiles for dense layouts — with showScrollbar',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -449,6 +449,7 @@ class _CompactDemoState extends State<CompactDemo> {
             DateTime.now(),
             width: 44,
             height: 64,
+            showScrollbar: true,
             initialSelectedDate: DateTime.now(),
             selectionColor: _indigo,
             selectedTextColor: Colors.white,

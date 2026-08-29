@@ -7,11 +7,24 @@ import 'package:date_picker_timeline/persian_date/persian_number.dart';
 import 'package:flutter/material.dart';
 
 class PersianDateWidget extends StatelessWidget {
+  /// Width of the tile's pill; the tile itself adds [Dimen.tileMargin]
+  /// on every side.
   final double? width;
+
+  /// The date this tile represents (a unit start date in week/month
+  /// granularity).
   final DateTime date;
+
+  /// Styles for the month, weekday and day-number labels.
   final TextStyle? monthTextStyle, dayTextStyle, dateTextStyle;
+
+  /// Background color of the pill ([Colors.transparent] when unselected).
   final Color selectionColor;
+
+  /// Called with [date] when the tile is tapped.
   final DateSelectionCallback? onDateSelected;
+
+  /// Locale used to format the labels.
   final String? locale;
 
   /// What this tile paints for the current selection. [selectionColor]

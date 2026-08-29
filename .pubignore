@@ -1,1 +1,22 @@
-example/
+# .pubignore replaces .gitignore for publishing, so build output must be
+# excluded here explicitly.
+build/
+pubspec.lock
+
+# Keep the example package lean: pub.dev only needs example/lib/main.dart
+# (and the pubspec) for the "has an example" check and the Example tab.
+example/build/
+example/android/
+example/ios/
+example/macos/
+example/.dart_tool/
+example/.flutter-plugins-dependencies
+example/pubspec.lock
+example/test/
+example/integration_test/
+
+# Referenced from the README via absolute URLs; no need to ship them.
+screenshots/
+
+# Repo tooling and working notes.
+tools/

@@ -1,3 +1,10 @@
+## [1.4.1] - 29/08/2026
+
+* Added `showScrollbar` (#86): renders an always-visible horizontal scrollbar
+  attached to the timeline's own scroll position, in its own gutter below the
+  tiles (the picker's total height becomes `height + 12`). Style it with an
+  ancestor `ScrollbarTheme`
+
 ## [1.4.0] - 29/08/2026
 
 * Added `granularity` (#43): `DateGranularity.week` renders one tile per week

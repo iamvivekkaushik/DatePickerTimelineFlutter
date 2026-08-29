@@ -65,6 +65,7 @@ DatePicker(
 | `daysCount` | `int` | `500` | How many tiles to render — days, weeks or months depending on `granularity` |
 | `granularity` | `DateGranularity` | `day` | One tile per day (default), per week, or per month. Week/month tiles select and emit the first day of their unit. Gregorian calendar only |
 | `firstDayOfWeek` | `int?` | `null` | First day of the week for `granularity: week`, as a `DateTime.monday`..`DateTime.sunday` constant. Defaults to the ambient locale's first day of week (Sunday for `en_US`); ignored in the other granularities |
+| `showScrollbar` | `bool` | `false` | Shows an always-visible horizontal scrollbar in its own 12px gutter below the tiles (total height becomes `height + 12`). Style it with an ancestor `ScrollbarTheme` |
 | `showPastDates` | `bool` | `false` | Also show past dates: half of `daysCount` falls before `startDate`, the picker opens with the selection (or `startDate`) centered, and controller methods scroll dates to the center instead of the leading edge |
 | `onDateChange` | `void Function(DateTime)?` | `null` | Called with the tapped date whenever the selection changes. Fires in `single` mode only — use `onSelectionChange` for `multiple` and `range` |
 | `locale` | `String` | `"en_US"` | Locale for month and weekday names (e.g. `"de_DE"`, `"fr_FR"`) |

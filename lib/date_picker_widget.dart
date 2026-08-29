@@ -129,6 +129,12 @@ class DatePicker extends StatefulWidget {
   /// labels). Ignored in the other granularities.
   final int? firstDayOfWeek;
 
+  /// When true, the timeline shows an always-visible horizontal scrollbar
+  /// in its own gutter below the tiles (the picker's total height becomes
+  /// [height] + [Dimen.scrollbarGutter]). Style it with an ancestor
+  /// [ScrollbarTheme].
+  final bool showScrollbar;
+
   const DatePicker(
     this.startDate, {
     super.key,
@@ -157,6 +163,7 @@ class DatePicker extends StatefulWidget {
     this.rangeTextColor,
     this.granularity = DateGranularity.day,
     this.firstDayOfWeek,
+    this.showScrollbar = false,
   })  : assert(
             activeDates == null || inactiveDates == null,
             "Can't "
@@ -703,11 +710,14 @@ class _DatePickerState extends State<DatePicker> {
               ? TextDirection.rtl
               : TextDirection.ltr),
       child: SizedBox(
-        height: widget.height,
+        // The scrollbar gets its own gutter below the tiles so the thumb
+        // never overlaps the weekday labels.
+        height:
+            widget.height + (widget.showScrollbar ? Dimen.scrollbarGutter : 0),
         child: LayoutBuilder(builder: (context, constraints) {
           _controller ??= ScrollController(
               initialScrollOffset: _initialScrollOffset(constraints.maxWidth));
-          return ListView.builder(
+          final Widget list = ListView.builder(
             itemCount: widget.daysCount,
             scrollDirection: Axis.horizontal,
             controller: _controller,
@@ -790,6 +800,15 @@ class _DatePickerState extends State<DatePicker> {
                   );
               }
             },
+          );
+          if (!widget.showScrollbar) return list;
+          return Scrollbar(
+            controller: _controller,
+            thumbVisibility: true,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: Dimen.scrollbarGutter),
+              child: list,
+            ),
           );
         }),
       ),

@@ -1,9 +1,13 @@
+/// Digit-conversion helpers for rendering Persian tiles.
 extension StringExtensions on String {
+  /// Returns this string with every Latin digit replaced by its Persian
+  /// equivalent.
   String toPersianDigit() {
     return NumberUtility.changeDigit(this);
   }
 }
 
+/// Converts Latin digits to Persian (Extended Arabic-Indic) digits.
 class NumberUtility {
   static const int _latinZero = 0x30; // '0'
   static const int _latinNine = 0x39; // '9'

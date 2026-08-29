@@ -20,8 +20,13 @@ class RangeBand extends StatelessWidget {
     required this.child,
   });
 
+  /// What this tile paints for the current selection.
   final TileSelection selection;
+
+  /// Color of the band.
   final Color color;
+
+  /// The tile content (the pill `Container`) painted above the band.
   final Widget child;
 
   @override

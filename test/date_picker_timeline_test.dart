@@ -1383,6 +1383,70 @@ void main() {
     });
   });
 
+  group('showScrollbar', () {
+    testWidgets('renders an attached scrollbar when enabled', (tester) async {
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        showScrollbar: true,
+        initialSelectedDate: _start,
+      )));
+      await tester.pumpAndSettle();
+      expect(
+          find.descendant(
+              of: find.byType(DatePicker), matching: find.byType(Scrollbar)),
+          findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('is absent by default', (tester) async {
+      await tester.pumpWidget(_wrap(DatePicker(_start)));
+      expect(
+          find.descendant(
+              of: find.byType(DatePicker), matching: find.byType(Scrollbar)),
+          findsNothing);
+    });
+
+    testWidgets('the thumb gets its own gutter below the tiles',
+        (tester) async {
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        height: 80,
+        showScrollbar: true,
+      )));
+      await tester.pumpAndSettle();
+      final picker = tester.getRect(find.byType(DatePicker));
+      final list = tester.getRect(find.byType(ListView));
+      // Picker grows by the gutter; the list (and its tiles) keep their
+      // height and end a gutter above the picker's bottom edge.
+      expect(picker.height, 80.0 + 12.0);
+      expect(list.height, 80.0);
+      expect(picker.bottom - list.bottom, 12.0);
+    });
+
+    testWidgets('no gutter is reserved when the scrollbar is off',
+        (tester) async {
+      await tester.pumpWidget(_wrap(DatePicker(_start, height: 80)));
+      expect(tester.getRect(find.byType(DatePicker)).height, 80.0);
+    });
+
+    testWidgets('controller scrolling still works with the scrollbar',
+        (tester) async {
+      final controller = DatePickerController();
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        width: 60,
+        showScrollbar: true,
+        controller: controller,
+      )));
+      controller.animateToDate(DateUtils.addDaysToDate(_start, 10));
+      await tester.pumpAndSettle();
+      final scrollable =
+          tester.widget<ListView>(find.byType(ListView)).controller!;
+      expect(scrollable.offset, 660.0);
+      expect(tester.takeException(), isNull);
+    });
+  });
+
   group('persian digits', () {
     test('toPersianDigit converts every Latin digit', () {
       expect('0123456789'.toPersianDigit(), '۰۱۲۳۴۵۶۷۸۹');

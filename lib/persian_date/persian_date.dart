@@ -1,4 +1,8 @@
+/// Gregorian <-> Jalali (Persian) calendar conversions and label helpers
+/// used by the `persianDate` calendar type.
 class PersianDate {
+  /// Converts the Gregorian date (y, m, d) to a [DateTime] whose fields
+  /// hold the corresponding Jalali year, month and day.
   static DateTime toJalali(int y, int m, int d, {bool twoDigits = false}) {
     const sumMonthDay = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
     int jY = y > 1600 ? 979 : 0;
@@ -32,6 +36,7 @@ class PersianDate {
     return DateTime(jY, month, jDay);
   }
 
+  /// The Persian name of Jalali month [m] (1..12).
   static String persianMonthNames(int m) {
     switch (m) {
       case 1:
@@ -63,6 +68,7 @@ class PersianDate {
     }
   }
 
+  /// Converts the Jalali date (y, m, d) back to a Gregorian [DateTime].
   static DateTime jalaliToGregorian(int y, int m, int d) {
     int gY;
     if (y > 979) {
@@ -114,6 +120,7 @@ class PersianDate {
     return DateTime(gY, i, gD);
   }
 
+  /// The Persian weekday name for the Jalali-valued [dateTime].
   static String persianWeeklyName(DateTime dateTime) {
     DateTime gregorianDate =
         jalaliToGregorian(dateTime.year, dateTime.month, dateTime.day);
