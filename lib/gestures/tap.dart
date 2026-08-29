@@ -7,3 +7,10 @@ typedef DateSelectionCallback = void Function(DateTime selectedDate);
 ///
 /// Used by [DatePicker] for change notification.
 typedef DateChangeListener = DateSelectionCallback;
+
+/// Signature for a function that is called with the whole selection
+/// whenever it changes.
+///
+/// Used by [DatePicker] in [SelectionMode.multiple] and
+/// [SelectionMode.range].
+typedef SelectionChangeListener = void Function(List<DateTime> selectedDates);

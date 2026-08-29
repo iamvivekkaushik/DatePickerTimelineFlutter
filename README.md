@@ -48,7 +48,7 @@ DatePicker(
 | `width` | `double` | `60` | Width of a single date tile |
 | `height` | `double` | `80` | Height of the picker. Labels scale down automatically if the text styles don't fit |
 | `controller` | `DatePickerController?` | `null` | Drives the picker programmatically — see [DatePickerController](#datepickercontroller) |
-| `initialSelectedDate` | `DateTime?` | `null` | Date highlighted when the picker first builds |
+| `initialSelectedDate` | `DateTime?` | `null` | Date highlighted when the picker first builds. `single` mode only — use `selectedDates` with the other modes |
 | `selectionColor` | `Color` | `Color(0x30000000)` | Background color of the selected tile |
 | `selectedTextColor` | `Color` | `Colors.white` | Text color inside the selected tile |
 | `deactivatedColor` | `Color` | `Color(0xFF666666)` | Text color for deactivated dates |
@@ -57,15 +57,61 @@ DatePicker(
 | `dayTextStyle` | `TextStyle` | 11px, w500, black | Style for the weekday label |
 | `inactiveDates` | `List<DateTime>?` | `null` | These dates are greyed out and can't be selected (e.g. weekends, holidays) |
 | `activeDates` | `List<DateTime>?` | `null` | Only these dates can be selected; everything else is deactivated. Can't be combined with `inactiveDates` |
+| `selectionMode` | `SelectionMode` | `single` | `single`, `multiple` (tapping a selected day removes it) or `range` (first tap sets the start, second the end; an earlier second tap swaps the endpoints) |
+| `selectedDates` | `List<DateTime>?` | `null` | Seeds the selection and adopts the list again whenever its contents change between builds. In `range` mode it holds `[start, end]`. `null` = the picker owns its selection; pass `[]` to clear |
+| `onSelectionChange` | `void Function(List<DateTime>)?` | `null` | Called with the whole selection after every tap, in every mode. In `range` mode it fires with one date after the first tap and two after the second |
+| `rangeColor` | `Color` | `Color(0x1F000000)` | Band painted behind the days between the range endpoints |
+| `rangeTextColor` | `Color?` | `null` | Text color for the days between the endpoints; defaults to the normal text styles |
 | `daysCount` | `int` | `500` | How many days to render, counted from `startDate` |
 | `showPastDates` | `bool` | `false` | Also show past dates: half of `daysCount` falls before `startDate`, the picker opens with the selection (or `startDate`) centered, and controller methods scroll dates to the center instead of the leading edge |
-| `onDateChange` | `void Function(DateTime)?` | `null` | Called with the tapped date whenever the selection changes |
+| `onDateChange` | `void Function(DateTime)?` | `null` | Called with the tapped date whenever the selection changes. Fires in `single` mode only — use `onSelectionChange` for `multiple` and `range` |
 | `locale` | `String` | `"en_US"` | Locale for month and weekday names (e.g. `"de_DE"`, `"fr_FR"`) |
 | `calendarType` | `CalendarType` | `gregorianDate` | `gregorianDate` or `persianDate` (Jalali) |
 | `directionality` | `TextDirection?` | `null` | Overrides scroll direction; defaults to RTL for the Persian calendar, LTR otherwise |
 
 Time-of-day components are ignored everywhere — dates are compared by
 calendar day, so passing `DateTime.now()` is always safe.
+
+## Multiple and range selection
+
+```dart
+// Any number of days — tapping a selected day removes it:
+DatePicker(
+  DateTime.now(),
+  selectionMode: SelectionMode.multiple,
+  selectedDates: _picked,
+  onSelectionChange: (dates) => setState(() => _picked = dates),
+)
+
+// A start/end pair — the days in between get a translucent band:
+DatePicker(
+  DateTime.now(),
+  selectionMode: SelectionMode.range,
+  selectedDates: _range, // [], [start] or [start, end]
+  rangeColor: Colors.teal.withValues(alpha: 0.15),
+  onSelectionChange: (dates) => setState(() => _range = dates),
+)
+```
+
+The range endpoints keep the `selectionColor` pill; the days in between are
+painted with `rangeColor` and keep the normal text styles (`rangeTextColor`
+overrides them). Deactivated days inside a range stay grey and untappable but
+the band runs through them. `onSelectionChange` reports the **endpoints**,
+never the expanded span — expand it when you need every day:
+
+```dart
+final days = [
+  for (var d = range.first;
+      !d.isAfter(range.last);
+      d = DateUtils.addDaysToDate(d, 1))
+    d,
+];
+```
+
+Passing `selectedDates` makes the picker a controlled component: pass the
+value received in `onSelectionChange` back in, or push a different list to
+override what the user picked (e.g. to enforce a maximum). A parent that
+rebuilds with an *equal* list leaves the picker's own state untouched.
 
 ## DatePickerController
 
@@ -94,23 +140,33 @@ _controller.setDateAndAnimate(someDate);          // select a date AND scroll to
 | `animateToDate(date, {duration, curve})` | Animates to `date` without changing the selection |
 | `setDateAndAnimate(date, {duration, curve})` | Selects `date`, repaints the highlight, and animates to it |
 | `isAttached` | Whether the controller is attached to a mounted `DatePicker` |
+| `selectedDates` | Unmodifiable snapshot of the selection, oldest-first (`[start, end]` in range mode) |
+| `select(date)` | Adds `date` per the current mode (replaces in single, adds in multiple, sets or completes the range) |
+| `deselect(date)` | Removes `date` from the selection (single/multiple modes) |
+| `clearSelection()` | Empties the selection in every mode |
+| `selectRange(start, end)` | Sets both range endpoints at once, swapping them when reversed |
 
 All methods are safe no-ops when the controller isn't attached, nothing is
 selected yet, or the target date is outside the rendered range. With
 `showPastDates: true` every method centers the target date in the viewport
-instead of aligning it to the leading edge.
+instead of aligning it to the leading edge. `jumpToSelection` and
+`animateToSelection` target the most recently tapped or programmatically
+selected date. Controller methods change the selection silently —
+`onDateChange`/`onSelectionChange` fire for user taps only.
 
 ## Design showcase
 
-The [example app](example/lib/main.dart) contains eight ready-made designs you
+The [example app](example/lib/main.dart) contains ten ready-made designs you
 can copy into your project — Classic, Past & future (`showPastDates`), Midnight
 (dark theme), Booking (weekends disabled), Sunset (gradient hero), Compact,
-Localized, and a controller playground:
+Localized, a controller playground, Multi-pick (`selectionMode: multiple`),
+and Range (`selectionMode: range`):
 
 <p>
  <img src="https://raw.githubusercontent.com/iamvivekkaushik/DatePickerTimelineFlutter/v1.3.0/screenshots/showcase_1.png" width="260" alt="Classic, Midnight and Booking designs"/>
  <img src="https://raw.githubusercontent.com/iamvivekkaushik/DatePickerTimelineFlutter/v1.3.0/screenshots/showcase_2.png" width="260" alt="Sunset gradient and Compact designs"/>
  <img src="https://raw.githubusercontent.com/iamvivekkaushik/DatePickerTimelineFlutter/v1.3.0/screenshots/showcase_3.png" width="260" alt="Localized and Controller designs"/>
+ <img src="https://raw.githubusercontent.com/iamvivekkaushik/DatePickerTimelineFlutter/v1.4.0/screenshots/showcase_4.png" width="260" alt="Multi-pick and Range designs"/>
 </p>
 
 Run it with:

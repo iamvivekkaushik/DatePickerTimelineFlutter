@@ -47,6 +47,10 @@ class ShowcasePage extends StatelessWidget {
           LocalizedDemo(),
           SizedBox(height: 16),
           ControllerDemo(),
+          SizedBox(height: 16),
+          MultiPickDemo(),
+          SizedBox(height: 16),
+          RangeDemo(),
           SizedBox(height: 24),
         ],
       ),
@@ -121,21 +125,24 @@ class DesignCard extends StatelessWidget {
 /// Small pill showing the currently selected date of a demo.
 class SelectedPill extends StatelessWidget {
   final DateTime? date;
+  final String? label;
   final Color color;
   final Color textColor;
 
   const SelectedPill({
     super.key,
-    required this.date,
+    this.date,
+    this.label,
     required this.color,
     required this.textColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    final label = date == null
-        ? 'Nothing selected yet'
-        : 'Selected  ·  ${date!.toIso8601String().split('T').first}';
+    final label = this.label ??
+        (date == null
+            ? 'Nothing selected yet'
+            : 'Selected  ·  ${date!.toIso8601String().split('T').first}');
     return Container(
       margin: const EdgeInsets.only(top: 12),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -559,6 +566,146 @@ class _ControllerDemoState extends State<ControllerDemo> {
             date: _selected,
             color: _green.withValues(alpha: 0.12),
             textColor: _green,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 9. Multiple selection: tap to add, tap again to remove.
+class MultiPickDemo extends StatefulWidget {
+  const MultiPickDemo({super.key});
+
+  @override
+  State<MultiPickDemo> createState() => _MultiPickDemoState();
+}
+
+class _MultiPickDemoState extends State<MultiPickDemo> {
+  static const _pink = Color(0xFFD81B60);
+  final DatePickerController _controller = DatePickerController();
+  List<DateTime> _selected = [
+    DateUtils.dateOnly(DateTime.now()),
+    DateUtils.addDaysToDate(DateTime.now(), 2),
+  ];
+
+  String get _label {
+    if (_selected.isEmpty) return 'No dates selected';
+    if (_selected.length == 1) {
+      return 'Selected  ·  ${_selected.single.toIso8601String().split('T').first}';
+    }
+    return '${_selected.length} days selected';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DesignCard(
+      title: 'Multi-pick',
+      subtitle: 'selectionMode: multiple — tap again to remove',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          DatePicker(
+            DateTime.now(),
+            selectionMode: SelectionMode.multiple,
+            selectedDates: _selected,
+            controller: _controller,
+            selectionColor: _pink,
+            selectedTextColor: Colors.white,
+            daysCount: 90,
+            onSelectionChange: (dates) => setState(() => _selected = dates),
+          ),
+          const SizedBox(height: 12),
+          _ChipButton(
+            label: 'Clear',
+            // Controller mutations are silent (they don't fire
+            // onSelectionChange), so mirror the local state too.
+            onTap: () {
+              _controller.clearSelection();
+              setState(() => _selected = []);
+            },
+          ),
+          SelectedPill(
+            label: _label,
+            color: _pink.withValues(alpha: 0.12),
+            textColor: _pink,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 10. Range selection: first tap picks the start, the second the end.
+class RangeDemo extends StatefulWidget {
+  const RangeDemo({super.key});
+
+  @override
+  State<RangeDemo> createState() => _RangeDemoState();
+}
+
+class _RangeDemoState extends State<RangeDemo> {
+  static const _cyan = Color(0xFF00838F);
+  final DatePickerController _controller = DatePickerController();
+  List<DateTime> _range = [
+    DateUtils.dateOnly(DateTime.now()),
+    DateUtils.addDaysToDate(DateTime.now(), 4),
+  ];
+
+  String get _label {
+    if (_range.isEmpty) return 'Tap a start date';
+    final start = _range.first.toIso8601String().split('T').first;
+    if (_range.length == 1) return 'Start · $start — now pick an end';
+    final end = _range.last.toIso8601String().split('T').first;
+    final days = _range.last.difference(_range.first).inDays + 1;
+    return '$start  →  $end  ·  $days days';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DesignCard(
+      title: 'Range',
+      subtitle: 'selectionMode: range — tap a start, then an end',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          DatePicker(
+            DateTime.now(),
+            selectionMode: SelectionMode.range,
+            selectedDates: _range,
+            controller: _controller,
+            selectionColor: _cyan,
+            selectedTextColor: Colors.white,
+            rangeColor: _cyan.withValues(alpha: 0.15),
+            daysCount: 90,
+            onSelectionChange: (dates) => setState(() => _range = dates),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            children: [
+              _ChipButton(
+                label: 'Next 7 days',
+                onTap: () {
+                  final today = DateTime.now();
+                  final end = DateUtils.addDaysToDate(today, 6);
+                  _controller.selectRange(today, end);
+                  setState(() => _range = [DateUtils.dateOnly(today), end]);
+                },
+              ),
+              _ChipButton(
+                label: 'Clear',
+                onTap: () {
+                  _controller.clearSelection();
+                  setState(() => _range = []);
+                },
+              ),
+            ],
+          ),
+          SelectedPill(
+            label: _label,
+            color: _cyan.withValues(alpha: 0.12),
+            textColor: _cyan,
           ),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'package:date_picker_timeline/date_picker_timeline.dart';
+import 'package:date_picker_timeline/extra/range_band.dart';
 import 'package:date_picker_timeline/persian_date/persian_number.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,6 +21,31 @@ Color _selectionColorFor(WidgetTester tester, String day) {
       _tileContainerFor(tester, day).decoration! as BoxDecoration;
   return decoration.color!;
 }
+
+/// The [TileSelection] the tile showing [day] paints.
+TileSelection _kindFor(WidgetTester tester, String day) {
+  return tester
+      .widget<RangeBand>(
+          find.ancestor(of: find.text(day), matching: find.byType(RangeBand)))
+      .selection;
+}
+
+/// The rect of the range band painted by [day]'s tile.
+Rect _bandRectFor(WidgetTester tester, String day) {
+  return tester.getRect(find.descendant(
+    of: find.ancestor(of: find.text(day), matching: find.byType(RangeBand)),
+    matching: find.byType(ColoredBox),
+  ));
+}
+
+Color _labelColorFor(WidgetTester tester, String day) =>
+    tester.widget<Text>(find.text(day)).style!.color!;
+
+/// Finds every range band actually painted by a tile.
+final Finder _anyBand = find.descendant(
+    of: find.byType(RangeBand), matching: find.byType(ColoredBox));
+
+DateTime _day(int d) => DateTime(2026, 8, d);
 
 void main() {
   group('rendering and selection', () {
@@ -381,6 +407,602 @@ void main() {
       controller.animateToDate(DateUtils.addDaysToDate(_start, 10));
       await tester.pumpAndSettle();
       expect(scrollable.offset, 660.0);
+    });
+  });
+
+  group('multiple selection', () {
+    testWidgets('keeps every tapped date selected', (tester) async {
+      final emissions = <List<DateTime>>[];
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        selectionMode: SelectionMode.multiple,
+        selectionColor: Colors.black,
+        onSelectionChange: emissions.add,
+      )));
+      await tester.tap(find.text('23'));
+      await tester.pump();
+      await tester.tap(find.text('25'));
+      await tester.pump();
+      expect(_selectionColorFor(tester, '23'), Colors.black);
+      expect(_selectionColorFor(tester, '25'), Colors.black);
+      expect(_selectionColorFor(tester, '24'), Colors.transparent);
+      expect(emissions.last, [_day(23), _day(25)]);
+    });
+
+    testWidgets('tapping a selected date removes it', (tester) async {
+      final emissions = <List<DateTime>>[];
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        selectionMode: SelectionMode.multiple,
+        selectedDates: [_day(22), _day(23)],
+        selectionColor: Colors.black,
+        onSelectionChange: emissions.add,
+      )));
+      await tester.tap(find.text('22'));
+      await tester.pump();
+      expect(_selectionColorFor(tester, '22'), Colors.transparent);
+      expect(_selectionColorFor(tester, '23'), Colors.black);
+      expect(emissions.single, [_day(23)]);
+    });
+
+    testWidgets('does not fire onDateChange', (tester) async {
+      var dateChanges = 0;
+      var selectionChanges = 0;
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        selectionMode: SelectionMode.multiple,
+        onDateChange: (_) => dateChanges++,
+        onSelectionChange: (_) => selectionChanges++,
+      )));
+      await tester.tap(find.text('23'));
+      await tester.pump();
+      expect(dateChanges, 0);
+      expect(selectionChanges, 1);
+    });
+
+    testWidgets('deactivated dates cannot be added', (tester) async {
+      final emissions = <List<DateTime>>[];
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        selectionMode: SelectionMode.multiple,
+        inactiveDates: [_day(24)],
+        onSelectionChange: emissions.add,
+      )));
+      await tester.tap(find.text('24'));
+      await tester.pump();
+      expect(emissions, isEmpty);
+      expect(_selectionColorFor(tester, '24'), Colors.transparent);
+    });
+
+    testWidgets('emits the selection sorted', (tester) async {
+      final emissions = <List<DateTime>>[];
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        selectionMode: SelectionMode.multiple,
+        onSelectionChange: emissions.add,
+      )));
+      await tester.tap(find.text('27'));
+      await tester.pump();
+      await tester.tap(find.text('23'));
+      await tester.pump();
+      expect(emissions.last, [_day(23), _day(27)]);
+    });
+
+    testWidgets('removing the last date leaves an empty selection',
+        (tester) async {
+      final controller = DatePickerController();
+      final emissions = <List<DateTime>>[];
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        selectionMode: SelectionMode.multiple,
+        selectedDates: [_day(22)],
+        controller: controller,
+        onSelectionChange: emissions.add,
+      )));
+      await tester.tap(find.text('22'));
+      await tester.pump();
+      expect(emissions.single, isEmpty);
+      controller.animateToSelection();
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('paints no range band', (tester) async {
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        selectionMode: SelectionMode.multiple,
+        selectedDates: [_day(23), _day(25)],
+      )));
+      expect(_kindFor(tester, '23'), TileSelection.selected);
+      expect(_kindFor(tester, '24'), TileSelection.none);
+      expect(_anyBand, findsNothing);
+    });
+  });
+
+  group('range selection', () {
+    Widget rangePicker({
+      DatePickerController? controller,
+      List<DateTime>? selectedDates,
+      List<DateTime>? inactiveDates,
+      SelectionChangeListener? onSelectionChange,
+      Color rangeColor = const Color(0xFF00FF00),
+      Color? rangeTextColor,
+      int daysCount = 500,
+    }) {
+      return _wrap(DatePicker(
+        _start,
+        selectionMode: SelectionMode.range,
+        selectionColor: Colors.black,
+        selectedTextColor: Colors.white,
+        rangeColor: rangeColor,
+        rangeTextColor: rangeTextColor,
+        controller: controller,
+        selectedDates: selectedDates,
+        inactiveDates: inactiveDates,
+        daysCount: daysCount,
+        onSelectionChange: onSelectionChange,
+      ));
+    }
+
+    testWidgets('first tap paints only a pending start', (tester) async {
+      final emissions = <List<DateTime>>[];
+      await tester.pumpWidget(rangePicker(onSelectionChange: emissions.add));
+      await tester.tap(find.text('23'));
+      await tester.pump();
+      expect(_kindFor(tester, '23'), TileSelection.selected);
+      expect(_kindFor(tester, '24'), TileSelection.none);
+      expect(emissions.single, [_day(23)]);
+    });
+
+    testWidgets('second tap paints start, middles and end', (tester) async {
+      final emissions = <List<DateTime>>[];
+      await tester.pumpWidget(rangePicker(onSelectionChange: emissions.add));
+      await tester.tap(find.text('23'));
+      await tester.pump();
+      await tester.tap(find.text('26'));
+      await tester.pump();
+      expect(_kindFor(tester, '23'), TileSelection.rangeStart);
+      expect(_kindFor(tester, '24'), TileSelection.rangeMiddle);
+      expect(_kindFor(tester, '25'), TileSelection.rangeMiddle);
+      expect(_kindFor(tester, '26'), TileSelection.rangeEnd);
+      expect(_selectionColorFor(tester, '23'), Colors.black);
+      expect(_selectionColorFor(tester, '26'), Colors.black);
+      expect(_selectionColorFor(tester, '24'), Colors.transparent);
+      expect(emissions.last, [_day(23), _day(26)]);
+    });
+
+    testWidgets('a reversed second tap swaps the endpoints', (tester) async {
+      final emissions = <List<DateTime>>[];
+      await tester.pumpWidget(rangePicker(onSelectionChange: emissions.add));
+      await tester.tap(find.text('26'));
+      await tester.pump();
+      await tester.tap(find.text('23'));
+      await tester.pump();
+      expect(_kindFor(tester, '23'), TileSelection.rangeStart);
+      expect(_kindFor(tester, '26'), TileSelection.rangeEnd);
+      expect(emissions.last, [_day(23), _day(26)]);
+    });
+
+    testWidgets('tapping the start again yields a one-day range',
+        (tester) async {
+      final emissions = <List<DateTime>>[];
+      await tester.pumpWidget(rangePicker(onSelectionChange: emissions.add));
+      await tester.tap(find.text('23'));
+      await tester.pump();
+      await tester.tap(find.text('23'));
+      await tester.pump();
+      expect(_kindFor(tester, '23'), TileSelection.selected);
+      expect(emissions.last, [_day(23), _day(23)]);
+      expect(_anyBand, findsNothing);
+    });
+
+    testWidgets('a third tap starts a new range', (tester) async {
+      final emissions = <List<DateTime>>[];
+      await tester.pumpWidget(rangePicker(onSelectionChange: emissions.add));
+      await tester.tap(find.text('23'));
+      await tester.pump();
+      await tester.tap(find.text('26'));
+      await tester.pump();
+      await tester.tap(find.text('28'));
+      await tester.pump();
+      expect(emissions.last, [_day(28)]);
+      expect(_kindFor(tester, '24'), TileSelection.none);
+      expect(_kindFor(tester, '28'), TileSelection.selected);
+    });
+
+    testWidgets('spans deactivated dates without selecting them',
+        (tester) async {
+      final emissions = <List<DateTime>>[];
+      await tester.pumpWidget(rangePicker(
+        inactiveDates: [_day(25)],
+        onSelectionChange: emissions.add,
+      ));
+      await tester.tap(find.text('23'));
+      await tester.pump();
+      await tester.tap(find.text('27'));
+      await tester.pump();
+      expect(_kindFor(tester, '25'), TileSelection.rangeMiddle);
+      expect(emissions.last, [_day(23), _day(27)]);
+      // Deactivated text styling wins over the range middle.
+      expect(_labelColorFor(tester, '25'), const Color(0xFF666666));
+    });
+
+    testWidgets('a deactivated date cannot start a range', (tester) async {
+      final emissions = <List<DateTime>>[];
+      await tester.pumpWidget(rangePicker(
+        inactiveDates: [_day(23)],
+        onSelectionChange: emissions.add,
+      ));
+      await tester.tap(find.text('23'));
+      await tester.pump();
+      expect(emissions, isEmpty);
+      expect(_kindFor(tester, '23'), TileSelection.none);
+    });
+
+    testWidgets('middles keep normal text styles unless rangeTextColor is set',
+        (tester) async {
+      await tester.pumpWidget(rangePicker(
+        selectedDates: [_day(23), _day(26)],
+      ));
+      expect(_labelColorFor(tester, '24'), Colors.black);
+      expect(_labelColorFor(tester, '23'), Colors.white);
+
+      await tester.pumpWidget(rangePicker(
+        selectedDates: [_day(23), _day(26)],
+        rangeTextColor: Colors.orange,
+      ));
+      expect(_labelColorFor(tester, '24'), Colors.orange);
+      expect(_labelColorFor(tester, '23'), Colors.white);
+    });
+
+    testWidgets('bands are continuous across the tile gutter', (tester) async {
+      await tester.pumpWidget(rangePicker(
+        selectedDates: [_day(23), _day(26)],
+      ));
+      final startBand = _bandRectFor(tester, '23');
+      final middleBand = _bandRectFor(tester, '24');
+      final endBand = _bandRectFor(tester, '26');
+      // width 60 + 2*3 margin = 66 per tile; endpoints paint a margin-wide
+      // connector strip, middles the full tile.
+      expect(middleBand.width, 66.0);
+      expect(startBand.width, 3.0);
+      expect(endBand.width, 3.0);
+      expect(startBand.right, middleBand.left);
+      expect(_bandRectFor(tester, '25').right, endBand.left);
+      // Band matches the painted pill vertically: the tile box is 80 tall
+      // and the pill is inset by the 3px margin on top and bottom.
+      final tile = tester.getRect(find
+          .ancestor(of: find.text('24'), matching: find.byType(Container))
+          .first);
+      expect(middleBand.top, tile.top + 3.0);
+      expect(middleBand.bottom, tile.bottom - 3.0);
+    });
+
+    testWidgets('an endpoint outside the window paints as a middle',
+        (tester) async {
+      await tester.pumpWidget(rangePicker(
+        daysCount: 10,
+        selectedDates: [_day(24), DateTime(2026, 9, 5)],
+      ));
+      expect(_kindFor(tester, '24'), TileSelection.rangeStart);
+      expect(_kindFor(tester, '31'), TileSelection.rangeMiddle);
+    });
+  });
+
+  group('selectedDates sync', () {
+    testWidgets('seeds the picker on first build', (tester) async {
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        selectionMode: SelectionMode.multiple,
+        selectedDates: [_day(24)],
+        selectionColor: Colors.black,
+      )));
+      expect(_selectionColorFor(tester, '24'), Colors.black);
+    });
+
+    testWidgets('a changed list is adopted', (tester) async {
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        selectionMode: SelectionMode.multiple,
+        selectedDates: [_day(22)],
+        selectionColor: Colors.black,
+      )));
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        selectionMode: SelectionMode.multiple,
+        selectedDates: [_day(24)],
+        selectionColor: Colors.black,
+      )));
+      expect(_selectionColorFor(tester, '24'), Colors.black);
+      expect(_selectionColorFor(tester, '22'), Colors.transparent);
+    });
+
+    testWidgets('an unchanged list does not clobber a tap', (tester) async {
+      Widget picker() => _wrap(DatePicker(
+            _start,
+            selectionMode: SelectionMode.multiple,
+            selectedDates: [_day(22)],
+            selectionColor: Colors.black,
+          ));
+      await tester.pumpWidget(picker());
+      await tester.tap(find.text('24'));
+      await tester.pump();
+      // Parent rebuild with an equal (but not identical) list literal.
+      await tester.pumpWidget(picker());
+      expect(_selectionColorFor(tester, '24'), Colors.black);
+      expect(_selectionColorFor(tester, '22'), Colors.black);
+    });
+
+    testWidgets('writing the emitted list back does not reset the anchor',
+        (tester) async {
+      final controller = DatePickerController();
+      List<DateTime> picked = [_day(22)];
+      late StateSetter rebuild;
+      await tester.pumpWidget(_wrap(StatefulBuilder(
+        builder: (context, setState) {
+          rebuild = setState;
+          return DatePicker(
+            _start,
+            selectionMode: SelectionMode.multiple,
+            selectedDates: picked,
+            controller: controller,
+            selectionColor: Colors.black,
+            onSelectionChange: (dates) => picked = dates,
+          );
+        },
+      )));
+      await tester.tap(find.text('25'));
+      await tester.pump();
+      rebuild(() {});
+      await tester.pump();
+      controller.animateToSelection();
+      await tester.pumpAndSettle();
+      // Anchor is the 25th (last tapped), which is at offset 3 * 66 = 198.
+      final scrollable =
+          tester.widget<ListView>(find.byType(ListView)).controller!;
+      expect(scrollable.offset, 198.0);
+    });
+
+    testWidgets('adoption never fires onSelectionChange', (tester) async {
+      var calls = 0;
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        selectionMode: SelectionMode.multiple,
+        selectedDates: [_day(22)],
+        onSelectionChange: (_) => calls++,
+      )));
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        selectionMode: SelectionMode.multiple,
+        selectedDates: [_day(24), _day(25)],
+        onSelectionChange: (_) => calls++,
+      )));
+      expect(calls, 0);
+    });
+
+    testWidgets('switching selectionMode from range to single keeps the start',
+        (tester) async {
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        selectionMode: SelectionMode.range,
+        selectedDates: [_day(23), _day(26)],
+        selectionColor: Colors.black,
+      )));
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        selectionMode: SelectionMode.single,
+        selectionColor: Colors.black,
+      )));
+      expect(_selectionColorFor(tester, '23'), Colors.black);
+      expect(_kindFor(tester, '24'), TileSelection.none);
+      expect(_kindFor(tester, '26'), TileSelection.none);
+    });
+
+    testWidgets('illegal parameter combinations assert', (tester) async {
+      expect(
+        () => DatePicker(
+          _start,
+          selectionMode: SelectionMode.multiple,
+          initialSelectedDate: _start,
+        ),
+        throwsAssertionError,
+      );
+      expect(
+        () => DatePicker(_start, selectedDates: [_start]),
+        throwsAssertionError,
+      );
+      expect(
+        () => DatePicker(
+          _start,
+          selectionMode: SelectionMode.range,
+          selectedDates: [_day(23), _day(24), _day(25)],
+        ),
+        throwsAssertionError,
+      );
+    });
+  });
+
+  group('DatePickerController multi/range', () {
+    testWidgets('selectedDates reflects taps and is unmodifiable',
+        (tester) async {
+      final controller = DatePickerController();
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        selectionMode: SelectionMode.multiple,
+        controller: controller,
+      )));
+      await tester.tap(find.text('25'));
+      await tester.pump();
+      await tester.tap(find.text('23'));
+      await tester.pump();
+      expect(controller.selectedDates, [_day(23), _day(25)]);
+      expect(
+          () => controller.selectedDates.add(_day(28)), throwsUnsupportedError);
+    });
+
+    testWidgets('select adds silently and ignores out-of-range dates',
+        (tester) async {
+      final controller = DatePickerController();
+      var calls = 0;
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        daysCount: 10,
+        selectionMode: SelectionMode.multiple,
+        controller: controller,
+        selectionColor: Colors.black,
+        onSelectionChange: (_) => calls++,
+      )));
+      controller.select(_day(24));
+      controller.select(_day(21)); // before startDate
+      controller.select(DateTime(2026, 9, 5)); // past the window
+      await tester.pump();
+      expect(_selectionColorFor(tester, '24'), Colors.black);
+      expect(controller.selectedDates, [_day(24)]);
+      expect(calls, 0);
+    });
+
+    testWidgets('select is additive, not a toggle', (tester) async {
+      final controller = DatePickerController();
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        selectionMode: SelectionMode.multiple,
+        selectedDates: [_day(24)],
+        controller: controller,
+      )));
+      controller.select(_day(24));
+      await tester.pump();
+      expect(controller.selectedDates, [_day(24)]);
+    });
+
+    testWidgets('deselect removes in multiple mode, no-ops in range mode',
+        (tester) async {
+      final controller = DatePickerController();
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        selectionMode: SelectionMode.multiple,
+        selectedDates: [_day(23), _day(24)],
+        controller: controller,
+      )));
+      controller.deselect(_day(23));
+      await tester.pump();
+      expect(controller.selectedDates, [_day(24)]);
+
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        selectionMode: SelectionMode.range,
+        selectedDates: [_day(23), _day(26)],
+        controller: controller,
+      )));
+      controller.deselect(_day(23));
+      await tester.pump();
+      expect(controller.selectedDates, [_day(23), _day(26)]);
+    });
+
+    testWidgets('clearSelection empties every mode', (tester) async {
+      final controller = DatePickerController();
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        selectionMode: SelectionMode.range,
+        selectedDates: [_day(23), _day(26)],
+        controller: controller,
+      )));
+      controller.clearSelection();
+      await tester.pump();
+      expect(controller.selectedDates, isEmpty);
+      expect(_kindFor(tester, '24'), TileSelection.none);
+      controller.jumpToSelection();
+      controller.animateToSelection();
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('selectRange sets both endpoints and swaps reversed args',
+        (tester) async {
+      final controller = DatePickerController();
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        selectionMode: SelectionMode.range,
+        controller: controller,
+      )));
+      controller.selectRange(_day(26), _day(23));
+      await tester.pump();
+      expect(controller.selectedDates, [_day(23), _day(26)]);
+      expect(_kindFor(tester, '23'), TileSelection.rangeStart);
+      expect(_kindFor(tester, '24'), TileSelection.rangeMiddle);
+      expect(_kindFor(tester, '26'), TileSelection.rangeEnd);
+    });
+
+    testWidgets('selectRange no-ops outside range mode', (tester) async {
+      final controller = DatePickerController();
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        selectionMode: SelectionMode.multiple,
+        controller: controller,
+      )));
+      controller.selectRange(_day(23), _day(26));
+      await tester.pump();
+      expect(controller.selectedDates, isEmpty);
+    });
+
+    testWidgets('setDateAndAnimate replaces the whole selection',
+        (tester) async {
+      final controller = DatePickerController();
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        selectionMode: SelectionMode.multiple,
+        selectedDates: [_day(22), _day(23)],
+        controller: controller,
+        selectionColor: Colors.black,
+      )));
+      controller.setDateAndAnimate(_day(24));
+      await tester.pumpAndSettle();
+      expect(controller.selectedDates, [_day(24)]);
+      expect(_selectionColorFor(tester, '24'), Colors.black);
+      // Scroll back so the previously selected tile is rebuilt and visible.
+      controller.animateToDate(_start);
+      await tester.pumpAndSettle();
+      expect(_selectionColorFor(tester, '22'), Colors.transparent);
+    });
+
+    testWidgets('all selection methods no-op after unmount', (tester) async {
+      final controller = DatePickerController();
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        selectionMode: SelectionMode.multiple,
+        selectedDates: [_day(22)],
+        controller: controller,
+      )));
+      await tester.pumpWidget(_wrap(const SizedBox()));
+      controller.select(_day(24));
+      controller.deselect(_day(22));
+      controller.clearSelection();
+      controller.selectRange(_day(23), _day(26));
+      expect(controller.selectedDates, isEmpty);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('single mode also reports through onSelectionChange',
+        (tester) async {
+      final emissions = <List<DateTime>>[];
+      DateTime? changed;
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        initialSelectedDate: _start,
+        onDateChange: (d) => changed = d,
+        onSelectionChange: emissions.add,
+      )));
+      await tester.tap(find.text('24'));
+      await tester.pump();
+      expect(changed, _day(24));
+      expect(emissions.single, [_day(24)]);
+    });
+
+    testWidgets('a default picker renders no band widgets', (tester) async {
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        initialSelectedDate: _start,
+      )));
+      expect(_anyBand, findsNothing);
     });
   });
 

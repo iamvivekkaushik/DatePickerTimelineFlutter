@@ -1,3 +1,30 @@
+## [1.4.0] - 29/08/2026
+
+* Added multi-date and range selection (#57): `selectionMode: SelectionMode.multiple`
+  selects any number of days (tapping a selected day removes it) and
+  `SelectionMode.range` selects a start and an end date (a second tap on an
+  earlier day swaps the endpoints)
+* Added `selectedDates`, which seeds the selection and adopts any later change
+  to the list, and `onSelectionChange`, which reports the whole selection after
+  every tap. In `range` mode the list holds `[start, end]` — the endpoints,
+  never the expanded span
+* Days between the range endpoints are painted with a new `rangeColor` band
+  that runs continuously across the gaps between tiles; `rangeTextColor`
+  styles their labels. The endpoints keep the existing `selectionColor` pill
+* `DatePickerController` gained `selectedDates`, `select`, `deselect`,
+  `clearSelection` and `selectRange`. `jumpToSelection`/`animateToSelection`
+  target the most recently selected date. Controller methods fire no
+  callbacks, matching `setDateAndAnimate`, which now sets the selection to
+  exactly `[date]` in every mode
+* `onDateChange` fires in `single` mode only — the default, so existing code
+  is unaffected
+* `GregorianDateWidget` and `PersianDateWidget` gained optional `selection`
+  and `rangeColor` parameters; existing call sites render identically
+* New public names exported from the package: `SelectionMode`,
+  `TileSelection`, `SelectionChangeListener`, `DateChangeListener`,
+  `DateSelectionCallback`
+* Example app: two new showcase cards, Multi-pick and Range
+
 ## [1.3.0] - 22/08/2026
 
 * Updated dependencies for the latest Flutter: `intl` widened to `>=0.19.0 <0.21.0`, Dart SDK floor raised to 3.5.0 (Flutter 3.24)
