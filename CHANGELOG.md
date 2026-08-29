@@ -1,5 +1,21 @@
 ## [1.4.0] - 29/08/2026
 
+* Added `granularity` (#43): `DateGranularity.week` renders one tile per week
+  ("AUG / 22–28 / 2026") and `DateGranularity.month` one per month
+  ("2026 / SEP"). Tapping a tile selects and emits the first day of its unit,
+  and every selection mode, `inactiveDates`/`activeDates` (one entry
+  deactivates its whole unit) and all `DatePickerController` methods compose
+  with it — dates passed anywhere snap to their containing unit
+* Added `firstDayOfWeek` (`DateTime.monday`..`DateTime.sunday`) to override
+  the week start, which otherwise comes from the ambient
+  `MaterialLocalizations` (Sunday for `en_US`)
+* `daysCount` now counts tiles in every granularity (days by default, the
+  historical meaning)
+* `GregorianDateWidget` gained optional `topLabel`/`middleLabel`/`bottomLabel`
+  overrides; existing call sites render identically
+* The Persian calendar supports day granularity only (asserted)
+* New exported name: `DateGranularity`
+* Example app: new "Weeks & months" showcase card with a granularity switch
 * Added multi-date and range selection (#57): `selectionMode: SelectionMode.multiple`
   selects any number of days (tapping a selected day removes it) and
   `SelectionMode.range` selects a start and an end date (a second tap on an

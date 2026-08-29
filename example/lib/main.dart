@@ -51,6 +51,8 @@ class ShowcasePage extends StatelessWidget {
           MultiPickDemo(),
           SizedBox(height: 16),
           RangeDemo(),
+          SizedBox(height: 16),
+          GranularityDemo(),
           SizedBox(height: 24),
         ],
       ),
@@ -706,6 +708,86 @@ class _RangeDemoState extends State<RangeDemo> {
             label: _label,
             color: _cyan.withValues(alpha: 0.12),
             textColor: _cyan,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 11. One tile per day, week, or month — same picker, one prop.
+class GranularityDemo extends StatefulWidget {
+  const GranularityDemo({super.key});
+
+  @override
+  State<GranularityDemo> createState() => _GranularityDemoState();
+}
+
+class _GranularityDemoState extends State<GranularityDemo> {
+  static const _orange = Color(0xFFEF6C00);
+  DateGranularity _granularity = DateGranularity.week;
+  DateTime? _selected;
+
+  static const _tileCounts = {
+    DateGranularity.day: 90,
+    DateGranularity.week: 26,
+    DateGranularity.month: 18,
+  };
+
+  String get _label {
+    if (_selected == null) return 'Nothing selected yet';
+    final iso = _selected!.toIso8601String().split('T').first;
+    switch (_granularity) {
+      case DateGranularity.day:
+        return 'Selected  ·  $iso';
+      case DateGranularity.week:
+        return 'Week starting  ·  $iso';
+      case DateGranularity.month:
+        return 'Month starting  ·  $iso';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DesignCard(
+      title: 'Weeks & months',
+      subtitle: 'granularity: day, week or month — one tile per unit',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SegmentedButton<DateGranularity>(
+            segments: const [
+              ButtonSegment(value: DateGranularity.day, label: Text('Days')),
+              ButtonSegment(value: DateGranularity.week, label: Text('Weeks')),
+              ButtonSegment(
+                  value: DateGranularity.month, label: Text('Months')),
+            ],
+            selected: {_granularity},
+            showSelectedIcon: false,
+            onSelectionChanged: (set) => setState(() {
+              _granularity = set.single;
+              _selected = null;
+            }),
+            style: const ButtonStyle(
+              visualDensity: VisualDensity.compact,
+            ),
+          ),
+          const SizedBox(height: 12),
+          DatePicker(
+            DateTime.now(),
+            // Remount on switch: a tile means something different per mode.
+            key: ValueKey(_granularity),
+            granularity: _granularity,
+            width: 72,
+            daysCount: _tileCounts[_granularity]!,
+            selectionColor: _orange,
+            selectedTextColor: Colors.white,
+            onDateChange: (date) => setState(() => _selected = date),
+          ),
+          SelectedPill(
+            label: _label,
+            color: _orange.withValues(alpha: 0.12),
+            textColor: _orange,
           ),
         ],
       ),

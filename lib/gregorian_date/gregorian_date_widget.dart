@@ -35,6 +35,15 @@ class GregorianDateWidget extends StatelessWidget {
   /// Color of the band painted behind days inside a selected range.
   final Color rangeColor;
 
+  /// Verbatim overrides for the three label rows, used by [DatePicker] for
+  /// week/month granularity tiles. When null the labels are formatted from
+  /// [date] exactly as before. Slot-to-style mapping: [topLabel] renders
+  /// with `monthTextStyle`, [middleLabel] with `dateTextStyle`, and
+  /// [bottomLabel] with `dayTextStyle`.
+  final String? topLabel;
+  final String? middleLabel;
+  final String? bottomLabel;
+
   const GregorianDateWidget({
     super.key,
     required this.date,
@@ -49,6 +58,9 @@ class GregorianDateWidget extends StatelessWidget {
     this.dayFormat,
     this.selection = TileSelection.none,
     this.rangeColor = Colors.transparent,
+    this.topLabel,
+    this.middleLabel,
+    this.bottomLabel,
   });
 
   @override
@@ -84,7 +96,8 @@ class GregorianDateWidget extends StatelessWidget {
                 Flexible(
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
-                    child: Text(month.format(date).toUpperCase(), // Month
+                    child: Text(
+                        topLabel ?? month.format(date).toUpperCase(), // Month
                         style: monthTextStyle),
                   ),
                 ),
@@ -92,14 +105,16 @@ class GregorianDateWidget extends StatelessWidget {
                   flex: 2,
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
-                    child: Text(date.day.toString(), // Date
+                    child: Text(middleLabel ?? date.day.toString(), // Date
                         style: dateTextStyle),
                   ),
                 ),
                 Flexible(
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
-                    child: Text(day.format(date).toUpperCase(), // WeekDay
+                    child: Text(
+                        bottomLabel ??
+                            day.format(date).toUpperCase(), // WeekDay
                         style: dayTextStyle),
                   ),
                 ),

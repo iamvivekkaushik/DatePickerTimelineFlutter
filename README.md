@@ -14,7 +14,7 @@ Add the dependency to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  date_picker_timeline: ^1.3.0
+  date_picker_timeline: ^1.4.0
 ```
 
 Then import it in your Dart file:
@@ -55,18 +55,20 @@ DatePicker(
 | `monthTextStyle` | `TextStyle` | 11px, w500, black | Style for the month label |
 | `dateTextStyle` | `TextStyle` | 24px, w500, black | Style for the day-of-month number |
 | `dayTextStyle` | `TextStyle` | 11px, w500, black | Style for the weekday label |
-| `inactiveDates` | `List<DateTime>?` | `null` | These dates are greyed out and can't be selected (e.g. weekends, holidays) |
+| `inactiveDates` | `List<DateTime>?` | `null` | These dates are greyed out and can't be selected (e.g. weekends, holidays). In week/month granularity one entry deactivates its whole unit |
 | `activeDates` | `List<DateTime>?` | `null` | Only these dates can be selected; everything else is deactivated. Can't be combined with `inactiveDates` |
 | `selectionMode` | `SelectionMode` | `single` | `single`, `multiple` (tapping a selected day removes it) or `range` (first tap sets the start, second the end; an earlier second tap swaps the endpoints) |
 | `selectedDates` | `List<DateTime>?` | `null` | Seeds the selection and adopts the list again whenever its contents change between builds. In `range` mode it holds `[start, end]`. `null` = the picker owns its selection; pass `[]` to clear |
 | `onSelectionChange` | `void Function(List<DateTime>)?` | `null` | Called with the whole selection after every tap, in every mode. In `range` mode it fires with one date after the first tap and two after the second |
 | `rangeColor` | `Color` | `Color(0x1F000000)` | Band painted behind the days between the range endpoints |
 | `rangeTextColor` | `Color?` | `null` | Text color for the days between the endpoints; defaults to the normal text styles |
-| `daysCount` | `int` | `500` | How many days to render, counted from `startDate` |
+| `daysCount` | `int` | `500` | How many tiles to render — days, weeks or months depending on `granularity` |
+| `granularity` | `DateGranularity` | `day` | One tile per day (default), per week, or per month. Week/month tiles select and emit the first day of their unit. Gregorian calendar only |
+| `firstDayOfWeek` | `int?` | `null` | First day of the week for `granularity: week`, as a `DateTime.monday`..`DateTime.sunday` constant. Defaults to the ambient locale's first day of week (Sunday for `en_US`); ignored in the other granularities |
 | `showPastDates` | `bool` | `false` | Also show past dates: half of `daysCount` falls before `startDate`, the picker opens with the selection (or `startDate`) centered, and controller methods scroll dates to the center instead of the leading edge |
 | `onDateChange` | `void Function(DateTime)?` | `null` | Called with the tapped date whenever the selection changes. Fires in `single` mode only — use `onSelectionChange` for `multiple` and `range` |
 | `locale` | `String` | `"en_US"` | Locale for month and weekday names (e.g. `"de_DE"`, `"fr_FR"`) |
-| `calendarType` | `CalendarType` | `gregorianDate` | `gregorianDate` or `persianDate` (Jalali) |
+| `calendarType` | `CalendarType` | `gregorianDate` | `gregorianDate` or `persianDate` (Jalali). `persianDate` supports day granularity only |
 | `directionality` | `TextDirection?` | `null` | Overrides scroll direction; defaults to RTL for the Persian calendar, LTR otherwise |
 
 Time-of-day components are ignored everywhere — dates are compared by
@@ -113,6 +115,28 @@ value received in `onSelectionChange` back in, or push a different list to
 override what the user picked (e.g. to enforce a maximum). A parent that
 rebuilds with an *equal* list leaves the picker's own state untouched.
 
+## Weeks and months
+
+```dart
+DatePicker(
+  DateTime.now(),
+  granularity: DateGranularity.week, // one tile per week
+  firstDayOfWeek: DateTime.monday,   // optional; defaults to the locale's
+  daysCount: 26,                     // number of week tiles
+  width: 72,                         // give day spans a little more room
+  onDateChange: (weekStart) => ...,  // always the unit's first day
+)
+```
+
+Week tiles read `AUG / 22–28 / 2026` (or `AUG–SEP / 30–5` when a week crosses
+months); month tiles read `2026 / SEP`. The three rows use the existing
+`monthTextStyle` / `dateTextStyle` / `dayTextStyle`, so every styling recipe
+works unchanged. Selection modes compose — a range of weeks paints the band
+across the weeks in between — and any date passed to the picker or the
+controller addresses its containing unit: `animateToDate` scrolls to the
+unit's tile, `setDateAndAnimate` selects the unit, `selectedDates` reports
+unit start dates, and an `inactiveDates` entry deactivates its whole unit.
+
 ## DatePickerController
 
 Attach a controller to move the timeline from code:
@@ -156,17 +180,19 @@ selected date. Controller methods change the selection silently —
 
 ## Design showcase
 
-The [example app](example/lib/main.dart) contains ten ready-made designs you
-can copy into your project — Classic, Past & future (`showPastDates`), Midnight
-(dark theme), Booking (weekends disabled), Sunset (gradient hero), Compact,
-Localized, a controller playground, Multi-pick (`selectionMode: multiple`),
-and Range (`selectionMode: range`):
+The [example app](example/lib/main.dart) contains eleven ready-made designs
+you can copy into your project — Classic, Past & future (`showPastDates`),
+Midnight (dark theme), Booking (weekends disabled), Sunset (gradient hero),
+Compact, Localized, a controller playground, Multi-pick
+(`selectionMode: multiple`), Range (`selectionMode: range`), and
+Weeks & months (`granularity`):
 
 <p>
  <img src="https://raw.githubusercontent.com/iamvivekkaushik/DatePickerTimelineFlutter/v1.3.0/screenshots/showcase_1.png" width="260" alt="Classic, Midnight and Booking designs"/>
  <img src="https://raw.githubusercontent.com/iamvivekkaushik/DatePickerTimelineFlutter/v1.3.0/screenshots/showcase_2.png" width="260" alt="Sunset gradient and Compact designs"/>
  <img src="https://raw.githubusercontent.com/iamvivekkaushik/DatePickerTimelineFlutter/v1.3.0/screenshots/showcase_3.png" width="260" alt="Localized and Controller designs"/>
  <img src="https://raw.githubusercontent.com/iamvivekkaushik/DatePickerTimelineFlutter/v1.4.0/screenshots/showcase_4.png" width="260" alt="Multi-pick and Range designs"/>
+ <img src="https://raw.githubusercontent.com/iamvivekkaushik/DatePickerTimelineFlutter/v1.5.0/screenshots/showcase_5.png" width="260" alt="Weeks and months granularity"/>
 </p>
 
 Run it with:

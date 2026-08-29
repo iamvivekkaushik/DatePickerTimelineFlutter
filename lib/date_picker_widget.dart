@@ -3,6 +3,7 @@ import 'package:date_picker_timeline/extra/color.dart';
 import 'package:date_picker_timeline/extra/dimen.dart';
 import 'package:date_picker_timeline/extra/style.dart';
 import 'package:date_picker_timeline/gestures/tap.dart';
+import 'package:date_picker_timeline/granularity.dart';
 import 'package:date_picker_timeline/persian_date/persian_date.dart';
 import 'package:date_picker_timeline/persian_date/persian_date_widget.dart';
 import 'package:date_picker_timeline/selection.dart';
@@ -50,11 +51,15 @@ class DatePicker extends StatefulWidget {
   final DateTime? /*?*/ initialSelectedDate;
 
   /// Contains the list of inactive dates.
-  /// All the dates defined in this List will be deactivated
+  /// All the dates defined in this List will be deactivated.
+  /// In week/month [granularity] each entry deactivates the whole unit
+  /// containing it.
   final List<DateTime>? inactiveDates;
 
   /// Contains the list of active dates.
   /// Only the dates in this list will be activated.
+  /// In week/month [granularity] each entry activates the whole unit
+  /// containing it.
   final List<DateTime>? activeDates;
 
   /// Callback function for when a different date is selected.
@@ -62,8 +67,9 @@ class DatePicker extends StatefulWidget {
   /// [SelectionMode.multiple] and [SelectionMode.range].
   final DateChangeListener? onDateChange;
 
-  /// Max limit up to which the dates are shown.
-  /// Days are counted from the startDate
+  /// Number of tiles rendered from [startDate], where each tile is one
+  /// [granularity] unit — days by default (the historical meaning), weeks
+  /// or months otherwise.
   final int daysCount;
 
   /// Calendar type
@@ -76,7 +82,8 @@ class DatePicker extends StatefulWidget {
   final String locale;
 
   /// When true, the timeline also shows past dates: half of [daysCount]
-  /// falls before [startDate], which is treated as the anchor ("today").
+  /// units falls before the unit containing [startDate], which is treated
+  /// as the anchor ("today").
   /// The picker opens with the selected date (or the anchor) in the center
   /// of the viewport, and all [DatePickerController] methods scroll dates
   /// to the center instead of the leading edge.
@@ -107,6 +114,21 @@ class DatePicker extends StatefulWidget {
   /// Defaults to the normal text styles.
   final Color? rangeTextColor;
 
+  /// The calendar unit each tile represents: one day (the default), one
+  /// week, or one month. Tapping a week/month tile selects and emits the
+  /// unit's start date. In week/month granularity the first tile is the
+  /// unit CONTAINING [startDate], so it may begin before [startDate], and
+  /// [daysCount] counts tiles (weeks/months), not days.
+  /// Gregorian calendar only.
+  final DateGranularity granularity;
+
+  /// First day of the week for [DateGranularity.week], as a
+  /// [DateTime.monday]..[DateTime.sunday] constant. When null it is
+  /// resolved from the ambient [MaterialLocalizations] (Sunday for
+  /// `en_US`; note this is independent of [locale], which only formats
+  /// labels). Ignored in the other granularities.
+  final int? firstDayOfWeek;
+
   const DatePicker(
     this.startDate, {
     super.key,
@@ -133,6 +155,8 @@ class DatePicker extends StatefulWidget {
     this.onSelectionChange,
     this.rangeColor = AppColors.defaultRangeColor,
     this.rangeTextColor,
+    this.granularity = DateGranularity.day,
+    this.firstDayOfWeek,
   })  : assert(
             activeDates == null || inactiveDates == null,
             "Can't "
@@ -150,7 +174,18 @@ class DatePicker extends StatefulWidget {
             selectedDates == null ||
                 selectionMode != SelectionMode.range ||
                 selectedDates.length <= 2,
-            "In range mode selectedDates must be [], [start] or [start, end].");
+            "In range mode selectedDates must be [], [start] or [start, end]."),
+        assert(
+            firstDayOfWeek == null ||
+                (firstDayOfWeek >= DateTime.monday &&
+                    firstDayOfWeek <= DateTime.sunday),
+            "firstDayOfWeek must be a DateTime weekday constant "
+            "(DateTime.monday..DateTime.sunday)."),
+        assert(
+            calendarType == CalendarType.gregorianDate ||
+                granularity == DateGranularity.day,
+            "Week/month granularity is not supported with "
+            "CalendarType.persianDate yet.");
 
   @override
   State<StatefulWidget> createState() => _DatePickerState();
@@ -198,22 +233,67 @@ class _DatePickerState extends State<DatePicker> {
   Set<DateTime>? _inactiveDays;
   Set<DateTime>? _activeDays;
 
+  /// Effective first day of the week (DateTime.monday..sunday), resolved in
+  /// [didChangeDependencies]/[didUpdateWidget] from [DatePicker
+  /// .firstDayOfWeek] or the ambient [MaterialLocalizations].
+  late int _firstDayOfWeek;
+
+  /// Selection seeding is deferred to the first [didChangeDependencies]
+  /// because [_unitKey] may need [MaterialLocalizations], which cannot be
+  /// read in [initState]. That first call is guaranteed to run before the
+  /// first build, so nothing can observe the gap.
+  bool _seeded = false;
+
   @override
   void initState() {
     super.initState();
-
-    // Set initial Values
-    if (widget.selectedDates != null) {
-      _selection = _normalise(widget.selectedDates!);
-    } else if (widget.initialSelectedDate != null) {
-      _currentDate = widget.initialSelectedDate;
-      _selection = <DateTime>[_dayKey(widget.initialSelectedDate!)];
-    }
 
     widget.controller?.setDatePickerState(this);
 
     _initLocale();
     _updateStyles();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final resolved = _resolveFirstDayOfWeek();
+    if (!_seeded) {
+      _firstDayOfWeek = resolved;
+      // Set initial Values
+      if (widget.selectedDates != null) {
+        _selection = _normalise(widget.selectedDates!);
+      } else if (widget.initialSelectedDate != null) {
+        _currentDate = widget.initialSelectedDate;
+        _selection = <DateTime>[_unitKey(widget.initialSelectedDate!)];
+      }
+      _updateDateSets();
+      _recomputeSelectionLookups();
+      _seeded = true;
+    } else if (resolved != _firstDayOfWeek) {
+      // The inherited localizations changed at runtime.
+      _firstDayOfWeek = resolved;
+      _resnapKeys();
+    }
+  }
+
+  int _resolveFirstDayOfWeek() {
+    final override = widget.firstDayOfWeek;
+    if (override != null) return override;
+    final index =
+        Localizations.of<MaterialLocalizations>(context, MaterialLocalizations)
+            ?.firstDayOfWeekIndex;
+    // No Localizations ancestor: behave like DefaultMaterialLocalizations.
+    if (index == null) return DateTime.sunday;
+    // MaterialLocalizations is Sunday-based (0 = Sunday .. 6 = Saturday);
+    // 1..6 already coincide with DateTime.monday..saturday.
+    return index == 0 ? DateTime.sunday : index;
+  }
+
+  /// Re-normalises all stored keys after the keying function changed
+  /// (granularity or effective first day of week).
+  void _resnapKeys() {
+    _selection = _normalise(_emit(_selection));
     _updateDateSets();
     _recomputeSelectionLookups();
   }
@@ -230,6 +310,15 @@ class _DatePickerState extends State<DatePicker> {
       _initLocale();
     }
     _updateStyles();
+
+    // The keying function may have changed; re-snap stored keys first so the
+    // date sets and the adopt block below all speak the new key language.
+    final oldFirst = _firstDayOfWeek;
+    _firstDayOfWeek = _resolveFirstDayOfWeek();
+    if (widget.granularity != oldWidget.granularity ||
+        _firstDayOfWeek != oldFirst) {
+      _selection = _normalise(_emit(_selection));
+    }
     _updateDateSets();
 
     // Adopt an updated selectedDates list (controlled usage), guarded so a
@@ -243,7 +332,7 @@ class _DatePickerState extends State<DatePicker> {
       if (modeChanged || !listEquals(incoming, _selection)) {
         _selection = incoming;
         if (_currentDate != null &&
-            !_selection.contains(_dayKey(_currentDate!))) {
+            !_selection.contains(_unitKey(_currentDate!))) {
           _currentDate = null;
         }
         if (widget.selectionMode == SelectionMode.single) {
@@ -264,12 +353,13 @@ class _DatePickerState extends State<DatePicker> {
 
   double get _tileExtent => widget.width + 2 * Dimen.tileMargin;
 
-  /// Number of rendered days that fall before [DatePicker.startDate].
-  int get _pastDaysCount => widget.showPastDates ? widget.daysCount ~/ 2 : 0;
+  /// Number of rendered units before the unit containing
+  /// [DatePicker.startDate].
+  int get _pastUnitsCount => widget.showPastDates ? widget.daysCount ~/ 2 : 0;
 
-  /// The first date on the timeline (index 0).
-  DateTime get _rangeStartDate =>
-      DateUtils.addDaysToDate(widget.startDate, -_pastDaysCount);
+  /// Unit key of index 0, snapped so that index 0 is a unit start.
+  DateTime get _timelineStartKey =>
+      _addUnitsToKey(_unitKey(widget.startDate), -_pastUnitsCount);
 
   /// The date the controller and the initial scroll position aim at: the
   /// most recently touched date, falling back to the first selected date
@@ -277,18 +367,55 @@ class _DatePickerState extends State<DatePicker> {
   DateTime? get _anchorDate =>
       _currentDate ?? (_selection.isEmpty ? null : _selection.first);
 
-  /// Canonical day key: the single normalisation choke point. UTC because
-  /// it is a bijection with (y, m, d) — local midnight does not exist on
+  /// Canonical unit key: UTC midnight of the start of the unit containing
+  /// [d]. The single normalisation choke point. UTC because it is a
+  /// bijection with (y, m, d) — local midnight does not exist on
   /// spring-forward days in some time zones — and because the index math
-  /// already works in UTC.
-  DateTime _dayKey(DateTime d) => DateTime.utc(d.year, d.month, d.day);
+  /// already works in UTC. Idempotent in every granularity.
+  DateTime _unitKey(DateTime d) {
+    final day = DateTime.utc(d.year, d.month, d.day);
+    switch (widget.granularity) {
+      case DateGranularity.day:
+        return day;
+      case DateGranularity.week:
+        // Duration arithmetic on UTC dates is exact calendar-day math.
+        return day
+            .subtract(Duration(days: (day.weekday - _firstDayOfWeek + 7) % 7));
+      case DateGranularity.month:
+        return DateTime.utc(d.year, d.month, 1);
+    }
+  }
+
+  /// [key] must be a unit key; returns the unit key [n] units later
+  /// (n may be negative). Preserves the unit-key invariant.
+  DateTime _addUnitsToKey(DateTime key, int n) {
+    switch (widget.granularity) {
+      case DateGranularity.day:
+        return DateTime.utc(key.year, key.month, key.day + n);
+      case DateGranularity.week:
+        return key.add(Duration(days: 7 * n));
+      case DateGranularity.month:
+        // UTC twin of DateUtils.addMonthsToMonthDate.
+        return DateTime.utc(key.year, key.month + n, 1);
+    }
+  }
+
+  /// Unit key of the tile at [index].
+  DateTime _keyOfIndex(int index) => _addUnitsToKey(_timelineStartKey, index);
+
+  /// Local-midnight date handed to tiles and callbacks for the tile at
+  /// [index] (the same de-normalisation as [_emit]).
+  DateTime _dateOfIndex(int index) {
+    final k = _keyOfIndex(index);
+    return DateTime(k.year, k.month, k.day);
+  }
 
   /// Normalises caller-supplied dates for the current [SelectionMode]:
   /// day keys, deduped+sorted in multiple mode, sorted and clamped to the
   /// two endpoints in range mode, first-only in single mode. Asserts (in
   /// debug) instead of throwing in release.
   List<DateTime> _normalise(List<DateTime> dates) {
-    final keys = dates.map(_dayKey).toList();
+    final keys = dates.map(_unitKey).toList();
     switch (widget.selectionMode) {
       case SelectionMode.single:
         return keys.isEmpty ? keys : <DateTime>[keys.first];
@@ -307,13 +434,22 @@ class _DatePickerState extends State<DatePicker> {
   List<DateTime> _emit(List<DateTime> keys) =>
       <DateTime>[for (final k in keys) DateTime(k.year, k.month, k.day)];
 
-  /// Raw timeline index of [date]'s calendar day relative to index 0; may
-  /// be outside the rendered window.
+  /// Raw timeline index of the unit containing [date], relative to index 0;
+  /// may be outside the rendered window.
   int _rawIndexOf(DateTime date) {
-    final start = _rangeStartDate;
-    return DateTime.utc(date.year, date.month, date.day)
-        .difference(DateTime.utc(start.year, start.month, start.day))
-        .inDays;
+    final key = _unitKey(date);
+    final start = _timelineStartKey;
+    switch (widget.granularity) {
+      case DateGranularity.day:
+        return key.difference(start).inDays;
+      case DateGranularity.week:
+        // Both operands are snapped week starts, so the difference is an
+        // exact multiple of 7 and truncating division is exact even for
+        // negative indices.
+        return key.difference(start).inDays ~/ 7;
+      case DateGranularity.month:
+        return DateUtils.monthDelta(start, key);
+    }
   }
 
   /// Timeline index of [date]'s tile, or null when it is outside the
@@ -367,7 +503,8 @@ class _DatePickerState extends State<DatePicker> {
       _currentDate = null;
     } else if (anchor != null) {
       _currentDate = next.contains(anchor) ? anchor : null;
-    } else if (_currentDate != null && !next.contains(_dayKey(_currentDate!))) {
+    } else if (_currentDate != null &&
+        !next.contains(_unitKey(_currentDate!))) {
       _currentDate = null;
     }
     _recomputeSelectionLookups();
@@ -381,7 +518,7 @@ class _DatePickerState extends State<DatePicker> {
     // Don't notify listener if date is deactivated
     if (isDeactivated) return;
 
-    final key = _dayKey(tappedDate);
+    final key = _unitKey(tappedDate);
     final next = _nextSelection(key);
 
     if (widget.selectionMode == SelectionMode.single) {
@@ -402,8 +539,8 @@ class _DatePickerState extends State<DatePicker> {
   /// Called by [DatePickerController.setDateAndAnimate]: the selection
   /// becomes exactly `[date]` in every mode.
   void _setSelectedDate(DateTime date) {
-    _applyProgrammaticSelection(<DateTime>[_dayKey(date)],
-        anchor: _dayKey(date));
+    _applyProgrammaticSelection(<DateTime>[_unitKey(date)],
+        anchor: _unitKey(date));
   }
 
   /// What the tile at [index] (showing [date]) paints for the current
@@ -413,13 +550,15 @@ class _DatePickerState extends State<DatePicker> {
   TileSelection _tileSelectionAt(int index, DateTime date) {
     switch (widget.selectionMode) {
       case SelectionMode.single:
-        // Check if this date is the one that is currently selected
-        final isSelected = _currentDate != null
-            ? DateUtils.isSameDay(date, _currentDate!)
-            : false;
+        // Check if this date's unit is the one that is currently selected.
+        // Unit-key equality (not isSameDay) so a mid-week/mid-month
+        // initialSelectedDate still paints its containing tile; identical
+        // truth table in day granularity.
+        final isSelected =
+            _currentDate != null && _unitKey(date) == _unitKey(_currentDate!);
         return isSelected ? TileSelection.selected : TileSelection.none;
       case SelectionMode.multiple:
-        return _selectedKeys.contains(_dayKey(date))
+        return _selectedKeys.contains(_unitKey(date))
             ? TileSelection.selected
             : TileSelection.none;
       case SelectionMode.range:
@@ -472,16 +611,42 @@ class _DatePickerState extends State<DatePicker> {
     );
   }
 
+  /// The three tile labels for week/month granularity, or null in day
+  /// granularity (the tile then formats its own labels from the date,
+  /// exactly as before). Slots map to the existing styles: top =
+  /// monthTextStyle, middle = dateTextStyle, bottom = dayTextStyle.
+  ({String top, String middle, String bottom})? _labelsFor(DateTime start) {
+    switch (widget.granularity) {
+      case DateGranularity.day:
+        return null;
+      case DateGranularity.week:
+        final end = DateUtils.addDaysToDate(start, 6);
+        final startMonth = _monthFormat.format(start).toUpperCase();
+        final top = end.month == start.month
+            ? startMonth
+            : '$startMonth–${_monthFormat.format(end).toUpperCase()}';
+        return (
+          top: top,
+          middle: '${start.day}–${end.day}',
+          bottom: start.year.toString(),
+        );
+      case DateGranularity.month:
+        return (
+          top: start.year.toString(),
+          middle: _monthFormat.format(start).toUpperCase(),
+          // Empty keeps the three-row Column rhythm so the month label sits
+          // where the day number does on day tiles.
+          bottom: '',
+        );
+    }
+  }
+
   /// Scroll offset the picker opens at: 0 normally; with
   /// [DatePicker.showPastDates] the selected date (or the anchor) centered.
   double _initialScrollOffset(double viewportWidth) {
     if (!widget.showPastDates || !viewportWidth.isFinite) return 0;
     final anchor = _anchorDate ?? widget.startDate;
-    final index = DateTime.utc(anchor.year, anchor.month, anchor.day)
-        .difference(DateTime.utc(
-            _rangeStartDate.year, _rangeStartDate.month, _rangeStartDate.day))
-        .inDays
-        .clamp(0, widget.daysCount - 1);
+    final index = _rawIndexOf(anchor).clamp(0, widget.daysCount - 1);
     final centered = index * _tileExtent - (viewportWidth - _tileExtent) / 2;
     final maxOffset = widget.daysCount * _tileExtent - viewportWidth;
     if (maxOffset <= 0) return 0;
@@ -522,9 +687,12 @@ class _DatePickerState extends State<DatePicker> {
         : widget.dayTextStyle.copyWith(color: rangeText);
   }
 
+  /// In week/month granularity each entry applies to the whole unit
+  /// containing it: one listed date deactivates (or, for activeDates,
+  /// activates) its entire week or month.
   void _updateDateSets() {
-    _inactiveDays = widget.inactiveDates?.map(_dayKey).toSet();
-    _activeDays = widget.activeDates?.map(_dayKey).toSet();
+    _inactiveDays = widget.inactiveDates?.map(_unitKey).toSet();
+    _activeDays = widget.activeDates?.map(_unitKey).toSet();
   }
 
   @override
@@ -547,11 +715,9 @@ class _DatePickerState extends State<DatePicker> {
             // telling the list makes layout cheaper and scroll metrics exact.
             itemExtent: _tileExtent,
             itemBuilder: (context, index) {
-              // Get the date object based on the index position. Uses
-              // calendar-day arithmetic (not Duration) so dates stay correct
-              // across daylight-saving transitions.
-              final DateTime gregorianDate =
-                  DateUtils.addDaysToDate(_rangeStartDate, index);
+              // The tile's unit-start date, derived from the index through
+              // the unit funnels (calendar-safe in every granularity).
+              final DateTime gregorianDate = _dateOfIndex(index);
               DateTime date;
               switch (widget.calendarType) {
                 case CalendarType.persianDate:
@@ -566,12 +732,12 @@ class _DatePickerState extends State<DatePicker> {
 
               // check if this date needs to be deactivated for only DeactivatedDates
               if (_inactiveDays != null) {
-                isDeactivated = _inactiveDays!.contains(_dayKey(date));
+                isDeactivated = _inactiveDays!.contains(_unitKey(date));
               }
 
               // check if this date needs to be deactivated for only ActivatedDates
               if (_activeDays != null) {
-                isDeactivated = !_activeDays!.contains(_dayKey(date));
+                isDeactivated = !_activeDays!.contains(_unitKey(date));
               }
 
               final tileSelection = _tileSelectionAt(index, date);
@@ -585,6 +751,8 @@ class _DatePickerState extends State<DatePicker> {
               final selectionColor =
                   isSelected ? widget.selectionColor : Colors.transparent;
 
+              final labels = _labelsFor(gregorianDate);
+
               // Return the Date Widget
               switch (widget.calendarType) {
                 case CalendarType.gregorianDate:
@@ -592,6 +760,9 @@ class _DatePickerState extends State<DatePicker> {
                     date: date,
                     monthFormat: _monthFormat,
                     dayFormat: _dayFormat,
+                    topLabel: labels?.top,
+                    middleLabel: labels?.middle,
+                    bottomLabel: labels?.bottom,
                     monthTextStyle: styles.month,
                     dateTextStyle: styles.date,
                     dayTextStyle: styles.day,
@@ -661,7 +832,7 @@ class DatePickerController {
   void select(DateTime date) {
     final state = _datePickerState;
     if (state == null || state._indexOf(date) == null) return;
-    final key = state._dayKey(date);
+    final key = state._unitKey(date);
     // _nextSelection toggles in multiple mode; select() must be additive.
     if (state.widget.selectionMode == SelectionMode.multiple &&
         state._selectedKeys.contains(key)) {
@@ -677,7 +848,7 @@ class DatePickerController {
     final state = _datePickerState;
     if (state == null) return;
     if (state.widget.selectionMode == SelectionMode.range) return;
-    final key = state._dayKey(date);
+    final key = state._unitKey(date);
     if (!state._selection.contains(key)) return;
     final next = List<DateTime>.of(state._selection)..remove(key);
     state._applyProgrammaticSelection(next, anchor: key);
@@ -697,8 +868,8 @@ class DatePickerController {
     if (state == null) return;
     if (state.widget.selectionMode != SelectionMode.range) return;
     if (state._indexOf(start) == null || state._indexOf(end) == null) return;
-    var a = state._dayKey(start);
-    var b = state._dayKey(end);
+    var a = state._unitKey(start);
+    var b = state._unitKey(end);
     if (b.isBefore(a)) {
       final t = a;
       a = b;

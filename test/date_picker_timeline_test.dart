@@ -1,8 +1,11 @@
 import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:date_picker_timeline/extra/range_band.dart';
+import 'package:date_picker_timeline/gregorian_date/gregorian_date_widget.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:date_picker_timeline/persian_date/persian_number.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart' show DateFormat;
 
 Widget _wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
 
@@ -40,6 +43,10 @@ Rect _bandRectFor(WidgetTester tester, String day) {
 
 Color _labelColorFor(WidgetTester tester, String day) =>
     tester.widget<Text>(find.text(day)).style!.color!;
+
+/// The label Column of the tile whose middle label is [middle].
+Finder _tileWith(String middle) =>
+    find.ancestor(of: find.text(middle), matching: find.byType(Column)).first;
 
 /// Finds every range band actually painted by a tile.
 final Finder _anyBand = find.descendant(
@@ -1003,6 +1010,376 @@ void main() {
         initialSelectedDate: _start,
       )));
       expect(_anyBand, findsNothing);
+    });
+  });
+
+  group('week granularity', () {
+    // _start = Sat 2026-08-22; default (bare MaterialApp) week start is
+    // Sunday, so week 0 = Aug 16-22, 1 = Aug 23-29, 2 = Aug 30-Sep 5,
+    // 3 = Sep 6-12.
+    Widget weekPicker({
+      DateTime? startDate,
+      int daysCount = 8,
+      int? firstDayOfWeek,
+      DatePickerController? controller,
+      List<DateTime>? inactiveDates,
+      List<DateTime>? selectedDates,
+      SelectionMode selectionMode = SelectionMode.single,
+      DateChangeListener? onDateChange,
+      SelectionChangeListener? onSelectionChange,
+    }) {
+      return _wrap(DatePicker(
+        startDate ?? _start,
+        granularity: DateGranularity.week,
+        daysCount: daysCount,
+        firstDayOfWeek: firstDayOfWeek,
+        controller: controller,
+        inactiveDates: inactiveDates,
+        selectedDates: selectedDates,
+        selectionMode: selectionMode,
+        selectionColor: Colors.black,
+        selectedTextColor: Colors.white,
+        onDateChange: onDateChange,
+        onSelectionChange: onSelectionChange,
+        initialSelectedDate:
+            selectionMode == SelectionMode.single && selectedDates == null
+                ? _start
+                : null,
+      ));
+    }
+
+    testWidgets('week tiles show month, day span and year', (tester) async {
+      await tester.pumpWidget(weekPicker());
+      expect(find.text('16–22'), findsOneWidget);
+      expect(find.text('23–29'), findsOneWidget);
+      expect(
+          find.descendant(of: _tileWith('16–22'), matching: find.text('AUG')),
+          findsOneWidget);
+      expect(
+          find.descendant(of: _tileWith('16–22'), matching: find.text('2026')),
+          findsOneWidget);
+    });
+
+    testWidgets('a week spanning two months shows both abbreviations',
+        (tester) async {
+      await tester.pumpWidget(weekPicker());
+      expect(
+          find.descendant(
+              of: _tileWith('30–5'), matching: find.text('AUG–SEP')),
+          findsOneWidget);
+    });
+
+    testWidgets('a week spanning the year boundary keeps the start year',
+        (tester) async {
+      // Sun 2026-12-27 .. Sat 2027-01-02.
+      await tester.pumpWidget(weekPicker(startDate: DateTime(2026, 12, 28)));
+      expect(
+          find.descendant(
+              of: _tileWith('27–2'), matching: find.text('DEC–JAN')),
+          findsOneWidget);
+      expect(
+          find.descendant(of: _tileWith('27–2'), matching: find.text('2026')),
+          findsOneWidget);
+    });
+
+    testWidgets('tap selects and emits the week start', (tester) async {
+      DateTime? changed;
+      final emissions = <List<DateTime>>[];
+      await tester.pumpWidget(weekPicker(
+        onDateChange: (d) => changed = d,
+        onSelectionChange: emissions.add,
+      ));
+      await tester.tap(find.text('23–29'));
+      await tester.pump();
+      expect(changed, DateTime(2026, 8, 23));
+      expect(emissions.single, [DateTime(2026, 8, 23)]);
+      expect(_selectionColorFor(tester, '23–29'), Colors.black);
+    });
+
+    testWidgets('mid-week initialSelectedDate paints its containing week',
+        (tester) async {
+      // _start is Sat Aug 22, mid-way through the Sunday week Aug 16-22.
+      await tester.pumpWidget(weekPicker());
+      expect(_selectionColorFor(tester, '16–22'), Colors.black);
+    });
+
+    testWidgets('firstDayOfWeek: monday rebuckets the weeks', (tester) async {
+      DateTime? changed;
+      await tester.pumpWidget(weekPicker(
+        firstDayOfWeek: DateTime.monday,
+        onDateChange: (d) => changed = d,
+      ));
+      expect(find.text('17–23'), findsOneWidget);
+      expect(find.text('16–22'), findsNothing);
+      await tester.tap(find.text('17–23'));
+      await tester.pump();
+      expect(changed, DateTime(2026, 8, 17));
+    });
+
+    testWidgets('ambient MaterialLocalizations set the default week start',
+        (tester) async {
+      // German locale: firstDayOfWeekIndex 1 = Monday.
+      await tester.pumpWidget(MaterialApp(
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
+        supportedLocales: const [Locale('de')],
+        locale: const Locale('de'),
+        home: Scaffold(
+          body: DatePicker(
+            _start,
+            granularity: DateGranularity.week,
+            daysCount: 4,
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.text('17–23'), findsOneWidget);
+      expect(find.text('16–22'), findsNothing);
+    });
+
+    testWidgets('a range of weeks paints the band across middles',
+        (tester) async {
+      await tester.pumpWidget(weekPicker(
+        selectionMode: SelectionMode.range,
+        selectedDates: [DateTime(2026, 8, 16), DateTime(2026, 8, 30)],
+      ));
+      expect(_kindFor(tester, '16–22'), TileSelection.rangeStart);
+      expect(_kindFor(tester, '23–29'), TileSelection.rangeMiddle);
+      expect(_kindFor(tester, '30–5'), TileSelection.rangeEnd);
+      expect(_bandRectFor(tester, '23–29').width, 66.0);
+      expect(_bandRectFor(tester, '16–22').width, 3.0);
+      expect(_bandRectFor(tester, '16–22').right,
+          _bandRectFor(tester, '23–29').left);
+    });
+
+    testWidgets('multiple mode toggles week tiles and emits sorted starts',
+        (tester) async {
+      final emissions = <List<DateTime>>[];
+      await tester.pumpWidget(weekPicker(
+        selectionMode: SelectionMode.multiple,
+        onSelectionChange: emissions.add,
+      ));
+      await tester.tap(find.text('30–5'));
+      await tester.pump();
+      await tester.tap(find.text('16–22'));
+      await tester.pump();
+      expect(emissions.last, [DateTime(2026, 8, 16), DateTime(2026, 8, 30)]);
+      await tester.tap(find.text('16–22'));
+      await tester.pump();
+      expect(emissions.last, [DateTime(2026, 8, 30)]);
+    });
+
+    testWidgets('an inactive date deactivates its containing week',
+        (tester) async {
+      DateTime? changed;
+      await tester.pumpWidget(weekPicker(
+        inactiveDates: [DateTime(2026, 8, 25)], // Tue inside Aug 23-29
+        onDateChange: (d) => changed = d,
+      ));
+      await tester.tap(find.text('23–29'));
+      await tester.pump();
+      expect(changed, isNull);
+      expect(_labelColorFor(tester, '23–29'), const Color(0xFF666666));
+    });
+
+    testWidgets('animateToDate scrolls to the containing week tile',
+        (tester) async {
+      final controller = DatePickerController();
+      await tester
+          .pumpWidget(weekPicker(controller: controller, daysCount: 30));
+      controller.animateToDate(DateTime(2026, 9, 10)); // inside week index 3
+      await tester.pumpAndSettle();
+      final scrollable =
+          tester.widget<ListView>(find.byType(ListView)).controller!;
+      expect(scrollable.offset, 3 * 66.0);
+    });
+
+    testWidgets('setDateAndAnimate snaps the selection to the week start',
+        (tester) async {
+      final controller = DatePickerController();
+      await tester.pumpWidget(weekPicker(controller: controller));
+      controller.setDateAndAnimate(DateTime(2026, 9, 10));
+      await tester.pumpAndSettle();
+      expect(controller.selectedDates, [DateTime(2026, 9, 6)]);
+      expect(_selectionColorFor(tester, '6–12'), Colors.black);
+    });
+
+    testWidgets('week tiles at default width do not overflow', (tester) async {
+      await tester.pumpWidget(weekPicker());
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('switching granularity at runtime re-snaps the selection',
+        (tester) async {
+      Widget picker(DateGranularity g) => _wrap(DatePicker(
+            _start,
+            granularity: g,
+            daysCount: 8,
+            selectionColor: Colors.black,
+            initialSelectedDate: _start,
+          ));
+      await tester.pumpWidget(picker(DateGranularity.day));
+      expect(_selectionColorFor(tester, '22'), Colors.black);
+      await tester.pumpWidget(picker(DateGranularity.week));
+      expect(_selectionColorFor(tester, '16–22'), Colors.black);
+    });
+  });
+
+  group('month granularity', () {
+    Widget monthPicker({
+      DateTime? startDate,
+      int daysCount = 12,
+      DatePickerController? controller,
+      List<DateTime>? inactiveDates,
+      List<DateTime>? selectedDates,
+      SelectionMode selectionMode = SelectionMode.single,
+      DateChangeListener? onDateChange,
+      String locale = 'en_US',
+    }) {
+      return _wrap(DatePicker(
+        startDate ?? _start,
+        granularity: DateGranularity.month,
+        daysCount: daysCount,
+        controller: controller,
+        inactiveDates: inactiveDates,
+        selectedDates: selectedDates,
+        selectionMode: selectionMode,
+        selectionColor: Colors.black,
+        selectedTextColor: Colors.white,
+        onDateChange: onDateChange,
+        locale: locale,
+        initialSelectedDate:
+            selectionMode == SelectionMode.single && selectedDates == null
+                ? _start
+                : null,
+      ));
+    }
+
+    testWidgets('month tiles show year and month abbreviation', (tester) async {
+      await tester.pumpWidget(monthPicker());
+      expect(find.text('AUG'), findsOneWidget);
+      expect(find.text('SEP'), findsOneWidget);
+      expect(find.descendant(of: _tileWith('AUG'), matching: find.text('2026')),
+          findsOneWidget);
+    });
+
+    testWidgets('the year label rolls at the year boundary', (tester) async {
+      await tester.pumpWidget(monthPicker(daysCount: 6));
+      // Aug 2026 .. Jan 2027 — JAN not visible at 66px tiles? viewport 800
+      // shows all 6.
+      expect(find.descendant(of: _tileWith('JAN'), matching: find.text('2027')),
+          findsOneWidget);
+    });
+
+    testWidgets('tap selects and emits the first of the month', (tester) async {
+      DateTime? changed;
+      await tester.pumpWidget(monthPicker(onDateChange: (d) => changed = d));
+      await tester.tap(find.text('OCT'));
+      await tester.pump();
+      expect(changed, DateTime(2026, 10, 1));
+      expect(_selectionColorFor(tester, 'OCT'), Colors.black);
+    });
+
+    testWidgets('mid-month initialSelectedDate highlights its month tile',
+        (tester) async {
+      await tester.pumpWidget(monthPicker());
+      expect(_selectionColorFor(tester, 'AUG'), Colors.black);
+    });
+
+    testWidgets('an inactive date deactivates its containing month',
+        (tester) async {
+      DateTime? changed;
+      await tester.pumpWidget(monthPicker(
+        inactiveDates: [DateTime(2026, 9, 10)],
+        onDateChange: (d) => changed = d,
+      ));
+      await tester.tap(find.text('SEP'));
+      await tester.pump();
+      expect(changed, isNull);
+    });
+
+    testWidgets('a range of months paints the band', (tester) async {
+      await tester.pumpWidget(monthPicker(
+        selectionMode: SelectionMode.range,
+        selectedDates: [DateTime(2026, 12, 1), DateTime(2027, 2, 1)],
+        daysCount: 8,
+      ));
+      expect(_kindFor(tester, 'DEC'), TileSelection.rangeStart);
+      expect(_kindFor(tester, 'JAN'), TileSelection.rangeMiddle);
+      expect(_kindFor(tester, 'FEB'), TileSelection.rangeEnd);
+    });
+
+    testWidgets('animateToDate scrolls to the containing month tile',
+        (tester) async {
+      final controller = DatePickerController();
+      await tester
+          .pumpWidget(monthPicker(controller: controller, daysCount: 24));
+      controller.animateToDate(DateTime(2026, 10, 15));
+      await tester.pumpAndSettle();
+      final scrollable =
+          tester.widget<ListView>(find.byType(ListView)).controller!;
+      expect(scrollable.offset, 2 * 66.0);
+    });
+
+    testWidgets('month labels follow the picker locale', (tester) async {
+      await tester.pumpWidget(monthPicker(locale: 'de_DE'));
+      final expected =
+          DateFormat('MMM', 'de_DE').format(DateTime(2026, 8, 1)).toUpperCase();
+      expect(find.text(expected), findsOneWidget);
+    });
+
+    testWidgets('persian calendar allows day granularity only', (tester) async {
+      expect(
+        () => DatePicker(_start,
+            calendarType: CalendarType.persianDate,
+            granularity: DateGranularity.week),
+        throwsAssertionError,
+      );
+      expect(
+        () => DatePicker(_start,
+            calendarType: CalendarType.persianDate,
+            granularity: DateGranularity.month),
+        throwsAssertionError,
+      );
+      // Day granularity + persian still constructs.
+      DatePicker(_start, calendarType: CalendarType.persianDate);
+    });
+
+    testWidgets('firstDayOfWeek outside monday..sunday asserts',
+        (tester) async {
+      expect(() => DatePicker(_start, firstDayOfWeek: 0), throwsAssertionError);
+      expect(() => DatePicker(_start, firstDayOfWeek: 8), throwsAssertionError);
+    });
+
+    testWidgets('explicit day granularity renders classic tiles',
+        (tester) async {
+      await tester.pumpWidget(_wrap(DatePicker(
+        _start,
+        granularity: DateGranularity.day,
+        initialSelectedDate: _start,
+      )));
+      expect(find.text('22'), findsOneWidget);
+      // Two Saturdays are visible in the viewport; classic weekday labels
+      // rendering at all is what this guards.
+      expect(find.text('SAT'), findsWidgets);
+    });
+
+    testWidgets('label overrides replace formatted labels verbatim',
+        (tester) async {
+      await tester.pumpWidget(_wrap(GregorianDateWidget(
+        date: _start,
+        monthTextStyle: const TextStyle(),
+        dayTextStyle: const TextStyle(),
+        dateTextStyle: const TextStyle(),
+        selectionColor: Colors.transparent,
+        topLabel: 'TOP',
+        middleLabel: 'MID',
+        bottomLabel: '',
+      )));
+      expect(find.text('TOP'), findsOneWidget);
+      expect(find.text('MID'), findsOneWidget);
+      expect(find.text('AUG'), findsNothing);
+      expect(find.text('22'), findsNothing);
+      expect(find.text('SAT'), findsNothing);
     });
   });
 
