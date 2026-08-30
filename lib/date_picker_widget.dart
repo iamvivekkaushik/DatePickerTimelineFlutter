@@ -695,6 +695,15 @@ class _DatePickerState extends State<DatePicker> {
     _activeDays = widget.activeDates?.map(_unitKey).toSet();
   }
 
+    @override
+  void didUpdateWidget(covariant DatePicker oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _currentDate = widget.initialSelectedDate;
+   if (widget.controller != null) {
+     widget.controller!.animateToSelection();
+   }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Directionality(
